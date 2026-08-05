@@ -1288,22 +1288,6 @@ body.nav-open { overflow: hidden; }
   .work__hint-d { display: none; }
   .work__hint-m { display: inline; }
   .work__head { padding: 0 1rem 1.5rem; }
-  .work__viewport.is-touch-scroll {
-    overflow-x: auto;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
-    scroll-padding-left: 1rem;
-    padding-bottom: 2.5rem;
-  }
-  .work__viewport.is-touch-scroll .work__rail {
-    transform: none !important;
-    padding: 0 1rem 0.5rem;
-    gap: 0.9rem;
-  }
-  .work__viewport.is-touch-scroll .panel {
-    scroll-snap-align: start;
-  }
   .work__rail { padding: 0 1rem; gap: 0.9rem; }
   .panel { width: min(82vw, 420px); }
   .panel__meta h3 { font-size: 1.2rem; }

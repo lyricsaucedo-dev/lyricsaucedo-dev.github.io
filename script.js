@@ -547,12 +547,7 @@
     }
 
     const getScroll = () => Math.max(0, rail.scrollWidth - viewport.clientWidth);
-
-    if (mobile()) {
-      viewport.classList.add("is-touch-scroll");
-      gsap.set(rail, { clearProps: "transform" });
-      return;
-    }
+    const isMob = mobile();
 
     gsap.to(rail, {
       x: () => -getScroll(),
@@ -560,13 +555,18 @@
       scrollTrigger: {
         trigger: ".work",
         start: "top top",
-        end: () => `+=${getScroll() + window.innerHeight * 0.35}`,
+        end: () =>
+          `+=${getScroll() * (isMob ? 1.35 : 1) + window.innerHeight * (isMob ? 0.55 : 0.35)}`,
         pin: true,
-        scrub: 1,
+        scrub: isMob ? 1.4 : 1,
         invalidateOnRefresh: true,
         anticipatePin: 1,
       },
     });
+
+    if (isMob) {
+      addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
+    }
 
     gsap.utils.toArray(".panel").forEach((panel) => {
       const img = panel.querySelector("img");
