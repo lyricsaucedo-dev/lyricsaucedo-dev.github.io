@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lyricsaucedo.dev — Web Design & Development</title>
+  <meta name="description" content="Award-caliber freelance web design and development for ambitious brands. Shopify, brand sites, and immersive digital experiences." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__stage">
+      <img src="assets/logo.png" alt="" class="loader__logo" />
+      <div class="loader__meta">
+        <span class="loader__tag">Lyricsaucedo.dev</span>
+        <span class="loader__count"><span id="loaderCount">00</span></span>
+      </div>
+      <div class="loader__track"><span class="loader__fill" id="loaderFill"></span></div>
+    </div>
+  </div>
+
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__goo">
+      <span class="cursor__blob cursor__blob--core"></span>
+      <span class="cursor__blob cursor__blob--mid"></span>
+      <span class="cursor__blob cursor__blob--tail"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+      <span class="cursor__spike"></span>
+    </div>
+    <span class="cursor__text"></span>
+  </div>
+  <svg class="cursor-filter" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="cursor-goo">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+      </filter>
+    </defs>
+  </svg>
+
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="nav" id="nav">
+    <a href="#intro" class="nav__brand" data-hover="link">
+      <img src="assets/logo.png" alt="" width="40" height="27" />
+      <span class="nav__name">Lyric Saucedo</span>
+    </a>
+
+    <div class="nav__pill">
+      <nav class="nav__menu" aria-label="Primary">
+        <a href="#work" data-section="work" data-hover="link"><em>01</em> Work</a>
+        <a href="#craft" data-section="craft" data-hover="link"><em>02</em> Craft</a>
+        <a href="#process" data-section="process" data-hover="link"><em>03</em> Process</a>
+        <a href="#contact" data-section="contact" data-hover="link"><em>04</em> Contact</a>
+        <a href="#contact" class="nav__menu-cta" data-hover="link">Hire me</a>
+      </nav>
+    </div>
+
+    <div class="nav__cta-pill">
+      <a href="#contact" class="nav__cta magnetic" data-hover="link">Hire me</a>
+    </div>
+    <button class="nav__burger" id="navToggle" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <main>
+    <!-- INTRO -->
+    <section class="intro" id="intro">
+      <div class="intro__bg" id="introBg" aria-hidden="true">
+        <img class="intro__shot is-on" src="assets/jessesparks.png" alt="" data-shot="0" />
+        <img class="intro__shot" src="assets/sjrnr.png" alt="" data-shot="1" />
+        <img class="intro__shot" src="assets/orthodoxicons.png" alt="" data-shot="2" />
+        <div class="intro__shade"></div>
+        <div class="intro__vignette"></div>
+      </div>
+
+      <div class="intro__lockup" data-enter>
+        <div class="intro__brand">
+          <img src="assets/logo.png" alt="" class="intro__mark" />
+          <p class="intro__wordmark">Lyricsaucedo.dev</p>
+          <div class="intro__offer">
+            <p class="intro__lede">
+              Freelance design &amp; development for brands that want craft, motion, and a storefront that converts.
+            </p>
+            <div class="intro__actions">
+              <a href="#work" class="btn magnetic" data-hover="link">View the work</a>
+              <a href="#contact" class="btn btn--ghost magnetic" data-hover="link">Start a project</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro__center">
+        <h1 class="intro__title">
+          <span class="clip"><span class="clip__in">Websites that</span></span>
+          <span class="clip"><span class="clip__in">feel <em>worth</em></span></span>
+          <span class="clip"><span class="clip__in"><em>hiring for.</em></span></span>
+        </h1>
+      </div>
+
+      <div class="intro__bottom" data-enter>
+        <a class="intro__feature" id="introLive" href="https://jessesparks714.com/" target="_blank" rel="noopener" data-hover="view">
+          <span class="intro__feature-thumb">
+            <img id="introThumb" src="assets/jessesparks.png" alt="" />
+          </span>
+          <span class="intro__feature-copy">
+            <span class="intro__feature-k">Featured</span>
+            <span class="intro__feature-n" id="introName">Jesse Sparks</span>
+            <span class="intro__feature-t" id="introType">MMA &amp; merch store</span>
+          </span>
+          <span class="intro__feature-go" aria-hidden="true">→</span>
+        </a>
+        <div class="intro__pips" id="introPips"></div>
+      </div>
+    </section>
+
+    <!-- STATEMENT -->
+    <section class="statement" id="statement">
+      <div class="statement__pin">
+        <p class="statement__line" id="statementLine">
+          Design is the product. Motion is the proof. Code is how it ships.
+        </p>
+      </div>
+    </section>
+
+    <!-- WORK — horizontal on desktop -->
+    <section class="work" id="work">
+      <div class="work__head">
+        <div class="work__head-inner">
+          <span class="eyebrow">01 — Selected work</span>
+          <h2 class="work__title">
+            <span class="clip"><span class="clip__in">Sites that already</span></span>
+            <span class="clip"><span class="clip__in">do the selling.</span></span>
+          </h2>
+        </div>
+        <p class="work__hint" aria-hidden="true"><span class="work__hint-d">Drag / scroll →</span><span class="work__hint-m">Swipe →</span></p>
+      </div>
+
+      <div class="work__viewport" id="workViewport">
+        <div class="work__rail" id="workRail">
+          <a class="panel" href="https://jessesparks714.com/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/jessesparks.png" alt="Jesse Sparks store" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>01</span>
+              <h3>Jesse Sparks</h3>
+              <p>MMA &amp; merch · 2026</p>
+            </div>
+          </a>
+          <a class="panel" href="https://orthodoxiconscorona.com/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/orthodoxicons.png" alt="Orthodox Icons Corona" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>02</span>
+              <h3>Orthodox Icons</h3>
+              <p>E-commerce · 2026</p>
+            </div>
+          </a>
+          <a class="panel" href="https://sjrnr.myshopify.com/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/sjrnr.png" alt="SJRNR streetwear" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>03</span>
+              <h3>SJRNR</h3>
+              <p>Streetwear · 2026</p>
+            </div>
+          </a>
+          <a class="panel" href="https://justthed.com/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/justhed.gif" alt="Just the D" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>04</span>
+              <h3>Just the D</h3>
+              <p>Surf &amp; streetwear · 2023</p>
+            </div>
+          </a>
+          <a class="panel" href="https://smaisanophotography.com/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/sarah.png" alt="Sarah's Lens" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>05</span>
+              <h3>Sarah's Lens</h3>
+              <p>Photography · 2024</p>
+            </div>
+          </a>
+          <a class="panel" href="https://lyricsaucedo-dev.github.io/blessedbeauty/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media">
+              <span class="panel__badge">WIP</span>
+              <img src="assets/blessedbeauty.png" alt="Blessed Beauty" loading="lazy" />
+            </div>
+            <div class="panel__meta">
+              <span>06</span>
+              <h3>Blessed Beauty</h3>
+              <p>Beauty &amp; wellness · 2025</p>
+            </div>
+          </a>
+          <a class="panel" href="https://www.charmedbybanana.com/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/charmed.png" alt="charmedbybanana" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>07</span>
+              <h3>charmedbybanana</h3>
+              <p>E-commerce · 2025</p>
+            </div>
+          </a>
+          <a class="panel" href="https://conceiving-victory.vercel.app/" target="_blank" rel="noopener" data-hover="view">
+            <div class="panel__media"><img src="assets/conceiving.png" alt="Conceiving Victory" loading="lazy" /></div>
+            <div class="panel__meta">
+              <span>08</span>
+              <h3>Conceiving Victory</h3>
+              <p>Therapy · 2024</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CRAFT — capability demos -->
+    <section class="craft" id="craft">
+      <div class="craft__intro">
+        <span class="eyebrow">02 — Capabilities</span>
+        <h2 class="craft__title">
+          This page is the pitch.<br />
+          <em>Every effect is intentional.</em>
+        </h2>
+      </div>
+
+      <div class="cap cap--type" data-cap="type">
+        <div class="cap__head">
+          <div class="cap__label"><span>01</span> Kinetic type</div>
+          <p class="cap__lead">Watch the line build as you scroll — each word is timed on purpose.</p>
+        </div>
+        <div class="cap__stage" id="capTypeStage">
+          <p class="cap__display" id="capType">Words that move with meaning.</p>
+          <div class="cap__scroll" id="capTypeHint" aria-hidden="true">
+            <span class="cap__scroll-track">
+              <span class="cap__scroll-fill" id="capTypeThumb"></span>
+            </span>
+            <span class="cap__scroll-chevron"></span>
+          </div>
+        </div>
+        <p class="cap__note">Masked reveals + staggered timing. Same toolkit used on real client headlines.</p>
+      </div>
+
+      <div class="cap cap--split" data-cap>
+        <div class="cap__copy">
+          <div class="cap__label"><span>02</span> Image direction</div>
+          <h3>Full-bleed storytelling</h3>
+          <p>Projects aren’t thumbnails in a grid. They’re cinematic frames with clip reveals, scale, and hover depth.</p>
+        </div>
+        <div class="cap__visual">
+          <div class="cap__frame">
+            <img src="assets/justhed.gif" alt="" loading="lazy" />
+          </div>
+        </div>
+      </div>
+
+      <div class="cap cap--marquee" data-cap>
+        <div class="cap__label"><span>03</span> Infinite motion</div>
+        <div class="ticker" id="ticker" aria-hidden="true">
+          <div class="ticker__track" id="tickerTrack">
+            <span>Brand sites</span><i>·</i>
+            <span>Shopify stores</span><i>·</i>
+            <span>Product launches</span><i>·</i>
+            <span>Editorial layouts</span><i>·</i>
+            <span>Motion systems</span><i>·</i>
+            <span>Conversion craft</span><i>·</i>
+            <span>Custom builds</span><i>·</i>
+            <span>Brand sites</span><i>·</i>
+            <span>Shopify stores</span><i>·</i>
+            <span>Product launches</span><i>·</i>
+            <span>Editorial layouts</span><i>·</i>
+            <span>Motion systems</span><i>·</i>
+            <span>Conversion craft</span><i>·</i>
+            <span>Custom builds</span><i>·</i>
+          </div>
+        </div>
+        <p class="cap__note">A living strip of what I build — velocity linked to your scroll.</p>
+      </div>
+
+      <div class="cap cap--grid" data-cap>
+        <div class="cap__label"><span>04</span> Interaction design</div>
+        <div class="cap__tiles">
+          <div class="tile">
+            <strong>Smooth scroll</strong>
+            <span>Inertia via Lenis — the whole site feels liquid.</span>
+          </div>
+          <div class="tile">
+            <strong>Magnetic CTAs</strong>
+            <span>Buttons that pull toward intent.</span>
+          </div>
+          <div class="tile">
+            <strong>Custom cursor</strong>
+            <span>Context-aware states: link, view, default.</span>
+          </div>
+          <div class="tile">
+            <strong>Scroll scenes</strong>
+            <span>Pinned storytelling + horizontal work rail.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="process" id="process">
+      <div class="process__head">
+        <span class="eyebrow">03 — Process</span>
+        <h2>From brief to something clients brag about.</h2>
+      </div>
+      <ol class="process__list">
+        <li class="process__item" data-step>
+          <span class="process__num">01</span>
+          <div>
+            <h3>Discover</h3>
+            <p>Brand, audience, offers, constraints — we define what “done” looks like before design starts.</p>
+          </div>
+        </li>
+        <li class="process__item" data-step>
+          <span class="process__num">02</span>
+          <div>
+            <h3>Art direction</h3>
+            <p>Type, color, motion language, and layout systems that feel like your brand — not a template.</p>
+          </div>
+        </li>
+        <li class="process__item" data-step>
+          <span class="process__num">03</span>
+          <div>
+            <h3>Build</h3>
+            <p>Pixel-precise front-end, Shopify when needed, performance obsessively watched.</p>
+          </div>
+        </li>
+        <li class="process__item" data-step>
+          <span class="process__num">04</span>
+          <div>
+            <h3>Launch</h3>
+            <p>Ship, train, hand over — and stay available when the next drop hits.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+      <div class="contact__glow" aria-hidden="true"></div>
+      <span class="eyebrow">04 — Contact</span>
+      <h2 class="contact__title">
+        Ready for a site<br />
+        <em>worth the screenshots?</em>
+      </h2>
+      <p class="contact__lede">
+        Tell me about the brand, timeline, and budget. I reply within a day.
+      </p>
+      <a class="btn btn--xl" id="emailBtn" href="mailto:lyricsaucedo.dev@gmail.com?subject=Project%20enquiry" data-hover="link">
+        Email Lyric
+      </a>
+      <div class="contact__email-row">
+        <button type="button" class="contact__mail" id="copyEmail" aria-label="Copy email address" title="Copy email">
+          <span>lyricsaucedo.dev@gmail.com</span>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+        <span class="contact__copied" id="emailCopied" hidden>Copied</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <a href="#intro" class="foot__brand" data-hover="link">
+      <img src="assets/logo.png" alt="" width="36" height="24" />
+      Lyricsaucedo.dev
+    </a>
+    <p>© <span id="year"></span> Lyric Saucedo</p>
+    <a href="https://github.com/lyricsaucedo-dev" target="_blank" rel="noopener" data-hover="link" aria-label="GitHub" class="magnetic">
+      <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+    </a>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
