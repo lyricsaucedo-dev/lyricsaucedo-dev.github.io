@@ -154,7 +154,8 @@
     window.addEventListener("resize", setActive, { passive: true });
 
     if (toggle) {
-      toggle.addEventListener("click", () => {
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
         const open = nav.classList.toggle("open");
         toggle.setAttribute("aria-expanded", String(open));
         document.body.classList.toggle("nav-open", open);
@@ -166,6 +167,21 @@
           document.body.classList.remove("nav-open");
         })
       );
+      document.addEventListener("click", (e) => {
+        if (!nav.classList.contains("open")) return;
+        const pill = nav.querySelector(".nav__pill");
+        if (
+          pill?.contains(e.target) ||
+          toggle.contains(e.target) ||
+          e.target.closest(".nav__cta-pill") ||
+          e.target.closest(".nav__brand")
+        ) {
+          return;
+        }
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("nav-open");
+      });
     }
   }
 
