@@ -207,17 +207,42 @@
       return;
     }
 
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform) || /Mac OS/.test(navigator.userAgent);
+
     lenis = new Lenis({
-      lerp: 0.08,
+      // Slightly heavier lerp on Mac trackpads reduces pin/scrub overshoot
+      lerp: isMac ? 0.12 : 0.08,
       smoothWheel: true,
       syncTouch: false,
+      wheelMultiplier: isMac ? 0.85 : 1,
       touchMultiplier: 1.2,
     });
 
     if (hasGSAP && typeof ScrollTrigger !== "undefined") {
+      // Keep ScrollTrigger locked to Lenis scroll so pins land in the right place
+      ScrollTrigger.scrollerProxy(document.documentElement, {
+        scrollTop(value) {
+          if (arguments.length) {
+            lenis.scrollTo(value, { immediate: true });
+          }
+          return lenis.scroll;
+        },
+        getBoundingClientRect() {
+          return {
+            top: 0,
+            left: 0,
+            width: window.innerWidth,
+            height: window.innerHeight,
+          };
+        },
+      });
+
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add((t) => lenis.raf(t * 1000));
       gsap.ticker.lagSmoothing(0);
+
+      ScrollTrigger.addEventListener("refresh", () => lenis.resize());
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     } else {
       const raf = (t) => {
         lenis.raf(t);
@@ -279,7 +304,7 @@
 
     const place = (el, x, y, rot = 0, sx = 1, sy = 1) => {
       if (!el) return;
-      el.style.transform = `translate(${x}px,${y}px) translate(-50%,-50%) rotate(${rot}deg) scale(${sx}, ${sy})`;
+      el.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${rot}deg) scale(${sx}, ${sy})`;
     };
 
     const loop = () => {
@@ -324,7 +349,7 @@
         });
 
         if (text) {
-          text.style.transform = `translate(${c.x + 32}px,${c.y + 22}px) translate(-50%,-50%)`;
+          text.style.transform = `translate3d(${c.x + 32}px,${c.y + 22}px,0) translate(-50%,-50%)`;
         }
       } else {
         spikes.forEach((spike) => place(spike, -9999, -9999));
@@ -332,7 +357,7 @@
         place(core, c.x, c.y, moveAngle, 1 + stretch, 1 - stretch * 0.42);
         place(mid, m.x, m.y, moveAngle, 1 + stretch * 0.55, 1 - stretch * 0.28);
         place(tail, t.x, t.y, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.18);
-        if (text) text.style.transform = `translate(${m.x}px,${m.y}px) translate(-50%,-50%)`;
+        if (text) text.style.transform = `translate3d(${m.x}px,${m.y}px,0) translate(-50%,-50%)`;
       }
 
       requestAnimationFrame(loop);
@@ -561,12 +586,20 @@
         scrub: isMob ? 1.4 : 1,
         invalidateOnRefresh: true,
         anticipatePin: 1,
+        // Fixed pins fight Lenis on Mac; transform keeps them aligned
+        pinType: lenis ? "transform" : "fixed",
       },
     });
 
     if (isMob) {
       addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
     }
+
+    // Recalc after project images load (wrong pin distance is common on Mac)
+    rail.querySelectorAll("img").forEach((img) => {
+      if (img.complete) return;
+      img.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
+    });
 
     gsap.utils.toArray(".panel").forEach((panel) => {
       const img = panel.querySelector("img");
@@ -670,6 +703,8 @@
           scrub: 0.55,
           pin: stage,
           anticipatePin: 1,
+          invalidateOnRefresh: true,
+          pinType: lenis ? "transform" : "fixed",
           onUpdate: (self) => {
             if (thumb) thumb.style.height = `${self.progress * 100}%`;
             if (hint) hint.classList.toggle("is-done", self.progress > 0.92);
@@ -801,11 +836,22 @@
 
   // Refresh ScrollTrigger after fonts/images
   if (hasGSAP && typeof ScrollTrigger !== "undefined") {
-    addEventListener("load", () => ScrollTrigger.refresh());
+    const refreshPins = () => ScrollTrigger.refresh();
+    addEventListener("load", refreshPins);
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(refreshPins);
+    }
     let resizeTimer;
     addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
+      resizeTimer = setTimeout(refreshPins, 200);
     });
+    // MacBook notch / toolbar show-hide changes visual viewport without a full resize
+    if (window.visualViewport) {
+      visualViewport.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(refreshPins, 200);
+      });
+    }
   }
 })();

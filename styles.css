@@ -127,17 +127,30 @@ ul, ol { list-style: none; }
   width: 0;
   height: 0;
   overflow: hidden;
+  pointer-events: none;
 }
+/* Full-viewport goo layer — filter creates a containing block, so children must NOT be position:fixed */
 .cursor__goo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
   filter: url(#cursor-goo);
 }
 .cursor__blob,
-.cursor__spike,
+.cursor__spike {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
 .cursor__text {
   position: fixed;
   top: 0;
   left: 0;
   will-change: transform;
+  pointer-events: none;
 }
 .cursor__blob {
   display: block;
