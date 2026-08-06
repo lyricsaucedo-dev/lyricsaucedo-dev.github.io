@@ -40,6 +40,14 @@
     </div>
     <span class="cursor__text"></span>
   </div>
+  <svg class="cursor-filter" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="cursor-goo" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9" result="goo" />
+      </filter>
+    </defs>
+  </svg>
 
   <div class="noise" aria-hidden="true"></div>
 

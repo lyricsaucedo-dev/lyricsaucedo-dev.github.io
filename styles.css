@@ -121,23 +121,25 @@ ul, ol { list-style: none; }
   transition: opacity 0.3s;
 }
 .cursor.on { opacity: 1; }
-/*
-  Small goo cell that follows the pointer.
-  Full-viewport SVG filters get skipped on Mac — CSS blur+contrast on a tiny box merges reliably.
-  Black cell + mix-blend difference makes the cell invisible; white blobs invert through.
-*/
+.cursor-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* Small goo cell — Safari skips filters on full-viewport layers */
 .cursor__goo {
   position: fixed;
   top: 0;
   left: 0;
-  width: 180px;
-  height: 180px;
-  margin: -90px 0 0 -90px;
-  background: #000;
-  filter: contrast(60);
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
   mix-blend-mode: difference;
   will-change: transform;
   pointer-events: none;
+  /* filter set in JS with absolute url for Safari */
 }
 .cursor__blob,
 .cursor__spike {
@@ -145,6 +147,8 @@ ul, ol { list-style: none; }
   top: 0;
   left: 0;
   will-change: transform;
+  /* sharp shapes — SVG goo merges them into liquid */
+  filter: none;
 }
 .cursor__text {
   position: fixed;
@@ -153,68 +157,6 @@ ul, ol { list-style: none; }
   will-change: transform;
   pointer-events: none;
   mix-blend-mode: difference;
-}
-.cursor__blob {
-  display: block;
-  border-radius: 50%;
-  background: #fff;
-  filter: blur(12px);
-}
-.cursor__spike {
-  display: block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  background: #fff;
-  filter: blur(8px);
-  opacity: 0;
-  transform: translate3d(-9999px, -9999px, 0);
-  transition: opacity 0.28s, width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.cursor__blob--core {
-  width: 28px;
-  height: 28px;
-}
-.cursor__blob--mid {
-  width: 36px;
-  height: 36px;
-  opacity: 0.95;
-}
-.cursor__blob--tail {
-  width: 44px;
-  height: 44px;
-  opacity: 0.85;
-}
-.cursor.is-link .cursor__blob--core,
-.cursor.is-view .cursor__blob--core {
-  width: 32px;
-  height: 32px;
-}
-.cursor.is-link .cursor__blob--mid,
-.cursor.is-view .cursor__blob--mid {
-  width: 26px;
-  height: 26px;
-}
-.cursor.is-link .cursor__blob--tail,
-.cursor.is-view .cursor__blob--tail {
-  width: 20px;
-  height: 20px;
-}
-.cursor.is-link .cursor__spike,
-.cursor.is-view .cursor__spike {
-  opacity: 1;
-  width: 14px;
-  height: 28px;
-  border-radius: 60% 60% 40% 40% / 70% 70% 30% 30%;
-}
-.cursor__blob--core,
-.cursor__blob--mid,
-.cursor__blob--tail {
-  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.3s;
-}
-.cursor__text {
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -222,7 +164,63 @@ ul, ol { list-style: none; }
   color: #fff;
   opacity: 0;
   transition: opacity 0.25s;
-  filter: none;
+}
+.cursor__blob {
+  display: block;
+  border-radius: 50%;
+  background: #fff;
+}
+.cursor__spike {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+  background: #fff;
+  opacity: 0;
+  transform: translate3d(-9999px, -9999px, 0);
+  transition: opacity 0.28s, width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cursor__blob--core {
+  width: 18px;
+  height: 18px;
+}
+.cursor__blob--mid {
+  width: 26px;
+  height: 26px;
+  opacity: 0.95;
+}
+.cursor__blob--tail {
+  width: 34px;
+  height: 34px;
+  opacity: 0.8;
+}
+.cursor.is-link .cursor__blob--core,
+.cursor.is-view .cursor__blob--core {
+  width: 22px;
+  height: 22px;
+}
+.cursor.is-link .cursor__blob--mid,
+.cursor.is-view .cursor__blob--mid {
+  width: 16px;
+  height: 16px;
+}
+.cursor.is-link .cursor__blob--tail,
+.cursor.is-view .cursor__blob--tail {
+  width: 10px;
+  height: 10px;
+}
+.cursor.is-link .cursor__spike,
+.cursor.is-view .cursor__spike {
+  opacity: 1;
+  width: 8px;
+  height: 22px;
+}
+.cursor__blob--core,
+.cursor__blob--mid,
+.cursor__blob--tail {
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.3s;
 }
 .cursor.is-view .cursor__text { opacity: 1; }
 .cursor.is-view .cursor__text::before { content: "Open"; }
@@ -696,7 +694,7 @@ ul, ol { list-style: none; }
   justify-content: space-between;
   align-items: flex-end;
   gap: 2rem;
-  padding: 0 clamp(1.25rem, 3vw, 2.5rem) 2.5rem;
+  padding: 0 clamp(1.25rem, 3vw, 2.5rem) 1.25rem;
 }
 .work__title {
   font-family: var(--display);
@@ -717,7 +715,7 @@ ul, ol { list-style: none; }
 
 .work__viewport {
   overflow: hidden;
-  padding-bottom: 4rem;
+  padding-bottom: 2.5rem;
 }
 .work__rail {
   display: flex;
