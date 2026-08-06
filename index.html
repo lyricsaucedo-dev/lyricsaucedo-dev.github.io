@@ -25,7 +25,7 @@
   <div class="progress" id="progress" aria-hidden="true"></div>
 
   <div class="cursor" id="cursor" aria-hidden="true">
-    <div class="cursor__goo">
+    <div class="cursor__goo" id="cursorGoo">
       <span class="cursor__blob cursor__blob--core"></span>
       <span class="cursor__blob cursor__blob--mid"></span>
       <span class="cursor__blob cursor__blob--tail"></span>
@@ -40,14 +40,6 @@
     </div>
     <span class="cursor__text"></span>
   </div>
-  <svg class="cursor-filter" aria-hidden="true" focusable="false">
-    <defs>
-      <filter id="cursor-goo">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-      </filter>
-    </defs>
-  </svg>
 
   <div class="noise" aria-hidden="true"></div>
 

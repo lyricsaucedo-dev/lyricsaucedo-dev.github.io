@@ -1,4 +1,4 @@
-﻿/* Lyricsaucedo.dev â€” Awwwards-caliber redesign */
+/* Lyricsaucedo.dev â€” Awwwards-caliber redesign */
 
 :root {
   --bg: #0a0a09;
@@ -118,25 +118,26 @@ ul, ol { list-style: none; }
   z-index: 9990;
   pointer-events: none;
   opacity: 0;
-  mix-blend-mode: difference;
   transition: opacity 0.3s;
 }
 .cursor.on { opacity: 1; }
-.cursor-filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-/* Full-viewport goo layer — filter creates a containing block, so children must NOT be position:fixed */
+/*
+  Small goo cell that follows the pointer.
+  Full-viewport SVG filters get skipped on Mac — CSS blur+contrast on a tiny box merges reliably.
+  Black cell + mix-blend difference makes the cell invisible; white blobs invert through.
+*/
 .cursor__goo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 180px;
+  height: 180px;
+  margin: -90px 0 0 -90px;
+  background: #000;
+  filter: contrast(60);
+  mix-blend-mode: difference;
+  will-change: transform;
   pointer-events: none;
-  filter: url(#cursor-goo);
 }
 .cursor__blob,
 .cursor__spike {
@@ -151,58 +152,59 @@ ul, ol { list-style: none; }
   left: 0;
   will-change: transform;
   pointer-events: none;
+  mix-blend-mode: difference;
 }
 .cursor__blob {
   display: block;
   border-radius: 50%;
   background: #fff;
+  filter: blur(12px);
 }
 .cursor__spike {
   display: block;
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
   background: #fff;
+  filter: blur(8px);
   opacity: 0;
-  transform: translate(-9999px, -9999px);
+  transform: translate3d(-9999px, -9999px, 0);
   transition: opacity 0.28s, width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cursor__blob--core {
-  width: 18px;
-  height: 18px;
-}
-.cursor__blob--mid {
   width: 28px;
   height: 28px;
-  opacity: 0.92;
 }
-.cursor__blob--tail {
+.cursor__blob--mid {
   width: 36px;
   height: 36px;
-  opacity: 0.75;
+  opacity: 0.95;
+}
+.cursor__blob--tail {
+  width: 44px;
+  height: 44px;
+  opacity: 0.85;
 }
 .cursor.is-link .cursor__blob--core,
 .cursor.is-view .cursor__blob--core {
-  width: 22px;
-  height: 22px;
+  width: 32px;
+  height: 32px;
 }
 .cursor.is-link .cursor__blob--mid,
 .cursor.is-view .cursor__blob--mid {
-  width: 16px;
-  height: 16px;
-  opacity: 0.95;
+  width: 26px;
+  height: 26px;
 }
 .cursor.is-link .cursor__blob--tail,
 .cursor.is-view .cursor__blob--tail {
-  width: 10px;
-  height: 10px;
-  opacity: 0.7;
+  width: 20px;
+  height: 20px;
 }
 .cursor.is-link .cursor__spike,
 .cursor.is-view .cursor__spike {
   opacity: 1;
-  width: 7px;
-  height: 20px;
+  width: 14px;
+  height: 28px;
   border-radius: 60% 60% 40% 40% / 70% 70% 30% 30%;
 }
 .cursor__blob--core,
@@ -220,6 +222,7 @@ ul, ol { list-style: none; }
   color: #fff;
   opacity: 0;
   transition: opacity 0.25s;
+  filter: none;
 }
 .cursor.is-view .cursor__text { opacity: 1; }
 .cursor.is-view .cursor__text::before { content: "Open"; }

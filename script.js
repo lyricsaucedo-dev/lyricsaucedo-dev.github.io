@@ -258,11 +258,14 @@
     if (!cursor || !fine || !desktop()) return;
 
     document.body.classList.add("has-cursor");
+    const goo = cursor.querySelector(".cursor__goo");
     const core = cursor.querySelector(".cursor__blob--core");
     const mid = cursor.querySelector(".cursor__blob--mid");
     const tail = cursor.querySelector(".cursor__blob--tail");
     const spikes = [...cursor.querySelectorAll(".cursor__spike")];
     const text = cursor.querySelector(".cursor__text");
+    // Goo cell is 180×180; local origin is its center
+    const origin = 90;
     let mx = innerWidth / 2;
     let my = innerHeight / 2;
     let c = { x: mx, y: my };
@@ -310,9 +313,9 @@
     const loop = () => {
       time += 0.016;
       const hovering = cursor.classList.contains("is-link") || cursor.classList.contains("is-view");
-      const easeCore = hovering ? 0.26 : 0.38;
-      const easeMid = hovering ? 0.2 : 0.2;
-      const easeTail = hovering ? 0.14 : 0.12;
+      const easeCore = hovering ? 0.28 : 0.42;
+      const easeMid = hovering ? 0.2 : 0.24;
+      const easeTail = hovering ? 0.14 : 0.14;
 
       c.x += (mx - c.x) * easeCore;
       c.y += (my - c.y) * easeCore;
@@ -326,26 +329,46 @@
       const speed = Math.min(Math.hypot(vx, vy), 42);
       const moveAngle = (Math.atan2(vy, vx) * 180) / Math.PI || 0;
 
+      // Move the filtered cell with the pointer (keeps goo cheap + Mac-safe)
+      if (goo) goo.style.transform = `translate3d(${c.x}px,${c.y}px,0)`;
+
       if (hovering) {
-        // Ferrofluid: dense core + radial spikes biased toward the target
         const toMagX = magnet.x - c.x;
         const toMagY = magnet.y - c.y;
         const magAngle = Math.atan2(toMagY, toMagX);
-        place(core, c.x, c.y, 0, 1.05, 1.05);
-        place(mid, c.x + Math.cos(magAngle) * 3, c.y + Math.sin(magAngle) * 3, 0, 1, 1);
-        place(tail, c.x - Math.cos(magAngle) * 2, c.y - Math.sin(magAngle) * 2, 0, 1, 1);
+        place(core, origin, origin, 0, 1.05, 1.05);
+        place(
+          mid,
+          origin + Math.cos(magAngle) * 4,
+          origin + Math.sin(magAngle) * 4,
+          0,
+          1,
+          1
+        );
+        place(
+          tail,
+          origin - Math.cos(magAngle) * 3,
+          origin - Math.sin(magAngle) * 3,
+          0,
+          1,
+          1
+        );
 
         const n = spikes.length || 1;
         spikes.forEach((spike, i) => {
           const base = (i / n) * Math.PI * 2 + time * 0.7;
-          // Bias spike field toward the magnet (ferrofluid spike direction)
           const angled = base * 0.55 + magAngle * 0.45 + Math.sin(time * 2.2 + i) * 0.18;
-          const len = 14 + Math.sin(time * 4.5 + i * 1.3) * 7 + (i % 2) * 3;
+          const len = 18 + Math.sin(time * 4.5 + i * 1.3) * 8 + (i % 2) * 3;
           const sx = 0.55 + Math.sin(time * 3 + i) * 0.12;
           const sy = 1.15 + Math.sin(time * 5 + i * 0.8) * 0.35;
-          const px = c.x + Math.cos(angled) * len;
-          const py = c.y + Math.sin(angled) * len;
-          place(spike, px, py, (angled * 180) / Math.PI + 90, sx, sy);
+          place(
+            spike,
+            origin + Math.cos(angled) * len,
+            origin + Math.sin(angled) * len,
+            (angled * 180) / Math.PI + 90,
+            sx,
+            sy
+          );
         });
 
         if (text) {
@@ -353,10 +376,15 @@
         }
       } else {
         spikes.forEach((spike) => place(spike, -9999, -9999));
-        const stretch = Math.min(speed * 0.028, 0.85);
-        place(core, c.x, c.y, moveAngle, 1 + stretch, 1 - stretch * 0.42);
-        place(mid, m.x, m.y, moveAngle, 1 + stretch * 0.55, 1 - stretch * 0.28);
-        place(tail, t.x, t.y, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.18);
+        // Keep lag offsets small so blobs stay inside the goo cell and merge
+        const stretch = Math.min(speed * 0.028, 0.75);
+        const midX = Math.max(-36, Math.min(36, m.x - c.x));
+        const midY = Math.max(-36, Math.min(36, m.y - c.y));
+        const tailX = Math.max(-48, Math.min(48, t.x - c.x));
+        const tailY = Math.max(-48, Math.min(48, t.y - c.y));
+        place(core, origin, origin, moveAngle, 1 + stretch, 1 - stretch * 0.42);
+        place(mid, origin + midX, origin + midY, moveAngle, 1 + stretch * 0.55, 1 - stretch * 0.28);
+        place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.18);
         if (text) text.style.transform = `translate3d(${m.x}px,${m.y}px,0) translate(-50%,-50%)`;
       }
 
@@ -573,20 +601,21 @@
 
     const getScroll = () => Math.max(0, rail.scrollWidth - viewport.clientWidth);
     const isMob = mobile();
+    // Pin when project images are vertically centered (not when section top hits top)
+    const firstMedia = viewport.querySelector(".panel__media") || viewport;
 
     gsap.to(rail, {
       x: () => -getScroll(),
       ease: "none",
       scrollTrigger: {
-        trigger: ".work",
-        start: "top top",
+        trigger: firstMedia,
+        start: "center center",
         end: () =>
           `+=${getScroll() * (isMob ? 1.35 : 1) + window.innerHeight * (isMob ? 0.55 : 0.35)}`,
-        pin: true,
+        pin: ".work",
         scrub: isMob ? 1.4 : 1,
         invalidateOnRefresh: true,
         anticipatePin: 1,
-        // Fixed pins fight Lenis on Mac; transform keeps them aligned
         pinType: lenis ? "transform" : "fixed",
       },
     });
