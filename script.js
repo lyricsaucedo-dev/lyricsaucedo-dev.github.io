@@ -210,11 +210,11 @@
     const isMac = /Mac|iPhone|iPad/.test(navigator.platform) || /Mac OS/.test(navigator.userAgent);
 
     lenis = new Lenis({
-      // Slightly heavier lerp on Mac trackpads reduces pin/scrub overshoot
-      lerp: isMac ? 0.12 : 0.08,
+      // Snappier lerp — heavy smoothing + scrub felt like rubber-banding
+      lerp: isMac ? 0.16 : 0.12,
       smoothWheel: true,
       syncTouch: false,
-      wheelMultiplier: isMac ? 0.85 : 1,
+      wheelMultiplier: isMac ? 0.9 : 1,
       touchMultiplier: 1.2,
     });
 
@@ -597,15 +597,17 @@
 
     const getScroll = () => Math.max(0, rail.scrollWidth - viewport.clientWidth);
     const isMob = mobile();
+    const viewH = () =>
+      Math.round(window.visualViewport?.height || window.innerHeight);
 
-    // Pin with the section bottom flush to the viewport bottom so the next
-    // (black) background never shows underneath while scrubbing the rail.
+    // Always flush the section bottom to the viewport bottom.
+    // If the section is taller than the window, the head clips above so
+    // panel titles/meta stay readable (important on short Safari windows).
     const workSection = document.querySelector(".work");
     const pinStart = () => {
-      const vh = window.innerHeight;
+      const vh = viewH();
       const h = workSection.offsetHeight;
-      const offset = h >= vh ? 0 : Math.round(vh - h);
-      return `top ${offset}px`;
+      return `top ${Math.round(vh - h)}px`;
     };
 
     gsap.to(rail, {
@@ -615,11 +617,13 @@
         trigger: ".work",
         start: pinStart,
         end: () =>
-          `+=${getScroll() * (isMob ? 1.35 : 1) + window.innerHeight * (isMob ? 0.55 : 0.35)}`,
+          `+=${getScroll() * (isMob ? 1.2 : 1) + viewH() * (isMob ? 0.45 : 0.25)}`,
         pin: true,
-        scrub: isMob ? 1.4 : 1,
+        // Lenis already smooths scroll — high scrub = rubber-band lag
+        scrub: isMob ? 0.45 : true,
         invalidateOnRefresh: true,
-        anticipatePin: 1,
+        anticipatePin: 0,
+        fastScrollEnd: true,
         pinType: lenis ? "transform" : "fixed",
       },
     });
@@ -634,12 +638,13 @@
       img.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
     });
 
+    // Soften per-panel image scrub — nested scrub + Lenis was a stutter source
     gsap.utils.toArray(".panel").forEach((panel) => {
       const img = panel.querySelector("img");
       if (!img) return;
       gsap.fromTo(
         img,
-        { scale: 1.12 },
+        { scale: 1.1 },
         {
           scale: 1.02,
           ease: "none",
@@ -647,7 +652,7 @@
             trigger: panel,
             start: "top 90%",
             end: "top 30%",
-            scrub: true,
+            scrub: 0.35,
           },
         }
       );
