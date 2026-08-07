@@ -121,18 +121,24 @@ ul, ol { list-style: none; }
   transition: opacity 0.3s;
 }
 .cursor.on { opacity: 1; }
+.cursor-filter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
 /*
-  CSS goo (Safari-safe):
-  - Blurred white blobs on a black plate + contrast = liquid merge
-  - mix-blend on the PARENT only so the black plate cancels out (no square)
+  True metaball goo (like your reference): sharp circles → SVG blur+threshold → solid merged blob.
+  mix-blend stays on the OUTER wrapper only — Safari paints a black square if blend+filter share a node.
 */
 .cursor__blend {
   position: fixed;
   top: 0;
   left: 0;
-  width: 140px;
-  height: 140px;
-  margin: -70px 0 0 -70px;
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
   background: transparent;
   mix-blend-mode: difference;
   will-change: transform;
@@ -143,9 +149,9 @@ ul, ol { list-style: none; }
   inset: 0;
   width: 100%;
   height: 100%;
-  background: #000;
-  filter: contrast(60);
+  background: transparent;
   pointer-events: none;
+  /* filter applied in JS — Safari needs an absolute # url */
 }
 .cursor__blob,
 .cursor__spike {
@@ -173,52 +179,50 @@ ul, ol { list-style: none; }
   display: block;
   border-radius: 50%;
   background: #fff;
-  filter: blur(10px);
 }
 .cursor__spike {
   display: block;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #fff;
-  filter: blur(8px);
   opacity: 0;
   transform: translate3d(-9999px, -9999px, 0);
   transition: opacity 0.28s, width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cursor__blob--core {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 .cursor__blob--mid {
-  width: 30px;
-  height: 30px;
-}
-.cursor__blob--tail {
-  width: 38px;
-  height: 38px;
-}
-.cursor.is-link .cursor__blob--core,
-.cursor.is-view .cursor__blob--core {
   width: 26px;
   height: 26px;
 }
+.cursor__blob--tail {
+  width: 34px;
+  height: 34px;
+}
+.cursor.is-link .cursor__blob--core,
+.cursor.is-view .cursor__blob--core {
+  width: 22px;
+  height: 22px;
+}
 .cursor.is-link .cursor__blob--mid,
 .cursor.is-view .cursor__blob--mid {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 .cursor.is-link .cursor__blob--tail,
 .cursor.is-view .cursor__blob--tail {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
 }
 .cursor.is-link .cursor__spike,
 .cursor.is-view .cursor__spike {
   opacity: 1;
-  width: 10px;
-  height: 18px;
-  border-radius: 50%;
+  width: 8px;
+  height: 20px;
+  border-radius: 40% 40% 45% 45%;
 }
 .cursor__blob--core,
 .cursor__blob--mid,
