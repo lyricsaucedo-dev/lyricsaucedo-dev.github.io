@@ -129,29 +129,23 @@ ul, ol { list-style: none; }
   pointer-events: none;
 }
 /*
-  True metaball goo (like your reference): sharp circles → SVG blur+threshold → solid merged blob.
-  mix-blend stays on the OUTER wrapper only — Safari paints a black square if blend+filter share a node.
+  One stretching blob (Comet/Windows look):
+  SVG goo on this node merges the circles. Black fill + mix-blend difference
+  cancels Safari’s filter buffer (the black square) — black difference = invisible.
 */
-.cursor__blend {
+.cursor__goo {
   position: fixed;
   top: 0;
   left: 0;
-  width: 160px;
-  height: 160px;
-  margin: -80px 0 0 -80px;
-  background: transparent;
+  width: 180px;
+  height: 180px;
+  margin: -90px 0 0 -90px;
+  background: #000;
   mix-blend-mode: difference;
   will-change: transform;
   pointer-events: none;
-}
-.cursor__goo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  pointer-events: none;
-  /* filter applied in JS — Safari needs an absolute # url */
+  filter: url(#cursor-goo);
+  -webkit-filter: url(#cursor-goo);
 }
 .cursor__blob,
 .cursor__spike {
@@ -195,12 +189,12 @@ ul, ol { list-style: none; }
   height: 18px;
 }
 .cursor__blob--mid {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 }
 .cursor__blob--tail {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
 }
 .cursor.is-link .cursor__blob--core,
 .cursor.is-view .cursor__blob--core {

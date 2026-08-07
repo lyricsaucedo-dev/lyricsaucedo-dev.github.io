@@ -258,33 +258,19 @@
     if (!cursor || !fine || !desktop()) return;
 
     document.body.classList.add("has-cursor");
-    const blend = cursor.querySelector(".cursor__blend");
     const goo = cursor.querySelector(".cursor__goo");
     const core = cursor.querySelector(".cursor__blob--core");
     const mid = cursor.querySelector(".cursor__blob--mid");
     const tail = cursor.querySelector(".cursor__blob--tail");
     const spikes = [...cursor.querySelectorAll(".cursor__spike")];
     const text = cursor.querySelector(".cursor__text");
-    const origin = 80;
+    const origin = 90;
 
-    // Apply metaball SVG goo — try several Safari-friendly forms
+    // Safari often ignores url(#id) unless absolute — keep goo on this same node as blend
     if (goo) {
       const abs = `url("${window.location.href.split("#")[0]}#cursor-goo")`;
-      const rel = "url(#cursor-goo)";
-      const data =
-        'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="g" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="10" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12"/></filter></svg>#g\')';
       goo.style.setProperty("filter", abs);
-      // If Safari ignored absolute page URL filters, fall back
-      requestAnimationFrame(() => {
-        const applied = getComputedStyle(goo).filter || "";
-        if (!applied || applied === "none") {
-          goo.style.setProperty("filter", rel);
-          requestAnimationFrame(() => {
-            const again = getComputedStyle(goo).filter || "";
-            if (!again || again === "none") goo.style.setProperty("filter", data);
-          });
-        }
-      });
+      goo.style.setProperty("-webkit-filter", abs);
     }
 
     let mx = innerWidth / 2;
@@ -350,7 +336,7 @@
       const speed = Math.min(Math.hypot(vx, vy), 42);
       const moveAngle = (Math.atan2(vy, vx) * 180) / Math.PI || 0;
 
-      if (blend) blend.style.transform = `translate3d(${c.x}px,${c.y}px,0)`;
+      if (goo) goo.style.transform = `translate3d(${c.x}px,${c.y}px,0)`;
 
       if (hovering) {
         const toMagX = magnet.x - c.x;
@@ -364,15 +350,14 @@
         spikes.forEach((spike, i) => {
           const base = (i / n) * Math.PI * 2 + time * 0.7;
           const angled = base * 0.5 + magAngle * 0.5 + Math.sin(time * 2 + i) * 0.1;
-          // Stay close so goo threshold welds spikes into the blob
-          const len = 11 + Math.sin(time * 4.5 + i * 1.3) * 3;
+          const len = 12 + Math.sin(time * 4.5 + i * 1.3) * 4;
           place(
             spike,
             origin + Math.cos(angled) * len,
             origin + Math.sin(angled) * len,
             (angled * 180) / Math.PI + 90,
             0.75,
-            1.4
+            1.45
           );
         });
 
@@ -382,12 +367,10 @@
       } else {
         spikes.forEach((spike) => place(spike, -9999, -9999));
         const stretch = Math.min(speed * 0.04, 1.1);
-        // Let trailing blobs lag further — the goo weld between them is what
-        // reads as stretching/warping fluid (tight clamps look like one static ball)
-        const midX = Math.max(-30, Math.min(30, m.x - c.x));
-        const midY = Math.max(-30, Math.min(30, m.y - c.y));
-        const tailX = Math.max(-48, Math.min(48, t.x - c.x));
-        const tailY = Math.max(-48, Math.min(48, t.y - c.y));
+        const midX = Math.max(-32, Math.min(32, m.x - c.x));
+        const midY = Math.max(-32, Math.min(32, m.y - c.y));
+        const tailX = Math.max(-50, Math.min(50, t.x - c.x));
+        const tailY = Math.max(-50, Math.min(50, t.y - c.y));
         place(core, origin, origin, moveAngle, 1 + stretch, 1 - stretch * 0.4);
         place(mid, origin + midX, origin + midY, moveAngle, 1 + stretch * 0.6, 1 - stretch * 0.28);
         place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.18);
