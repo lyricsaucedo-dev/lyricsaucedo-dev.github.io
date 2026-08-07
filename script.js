@@ -258,6 +258,7 @@
     if (!cursor || !fine || !desktop()) return;
 
     document.body.classList.add("has-cursor");
+    const blend = cursor.querySelector(".cursor__blend");
     const goo = cursor.querySelector(".cursor__goo");
     const core = cursor.querySelector(".cursor__blob--core");
     const mid = cursor.querySelector(".cursor__blob--mid");
@@ -271,6 +272,7 @@
     if (goo) {
       const base = window.location.href.split("#")[0];
       goo.style.filter = `url("${base}#cursor-goo")`;
+      goo.style.background = "transparent";
     }
 
     let mx = innerWidth / 2;
@@ -336,7 +338,7 @@
       const speed = Math.min(Math.hypot(vx, vy), 42);
       const moveAngle = (Math.atan2(vy, vx) * 180) / Math.PI || 0;
 
-      if (goo) goo.style.transform = `translate3d(${c.x}px,${c.y}px,0)`;
+      if (blend) blend.style.transform = `translate3d(${c.x}px,${c.y}px,0)`;
 
       if (hovering) {
         // Ferrofluid: blobs stay overlapping so SVG goo merges them into spikes

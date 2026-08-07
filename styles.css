@@ -128,16 +128,25 @@ ul, ol { list-style: none; }
   overflow: hidden;
   pointer-events: none;
 }
-/* Small goo cell — Safari skips filters on full-viewport layers */
-.cursor__goo {
+/* Blend wrapper — NEVER put mix-blend on the same node as the SVG filter (Safari paints a black square) */
+.cursor__blend {
   position: fixed;
   top: 0;
   left: 0;
   width: 160px;
   height: 160px;
   margin: -80px 0 0 -80px;
+  background: transparent;
   mix-blend-mode: difference;
   will-change: transform;
+  pointer-events: none;
+}
+.cursor__goo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
   pointer-events: none;
   /* filter set in JS with absolute url for Safari */
 }
@@ -147,7 +156,6 @@ ul, ol { list-style: none; }
   top: 0;
   left: 0;
   will-change: transform;
-  /* sharp shapes — SVG goo merges them into liquid */
   filter: none;
 }
 .cursor__text {
