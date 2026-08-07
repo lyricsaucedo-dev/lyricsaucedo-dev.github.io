@@ -272,7 +272,7 @@
       const abs = `url("${window.location.href.split("#")[0]}#cursor-goo")`;
       const rel = "url(#cursor-goo)";
       const data =
-        'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="g" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="8" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10"/></filter></svg>#g\')';
+        'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="g" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="10" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12"/></filter></svg>#g\')';
       goo.style.setProperty("filter", abs);
       // If Safari ignored absolute page URL filters, fall back
       requestAnimationFrame(() => {
@@ -381,15 +381,16 @@
         }
       } else {
         spikes.forEach((spike) => place(spike, -9999, -9999));
-        const stretch = Math.min(speed * 0.034, 0.9);
-        // Overlap enough for metaball weld (your reference look)
-        const midX = Math.max(-14, Math.min(14, m.x - c.x));
-        const midY = Math.max(-14, Math.min(14, m.y - c.y));
-        const tailX = Math.max(-22, Math.min(22, t.x - c.x));
-        const tailY = Math.max(-22, Math.min(22, t.y - c.y));
-        place(core, origin, origin, moveAngle, 1 + stretch, 1 - stretch * 0.45);
-        place(mid, origin + midX, origin + midY, moveAngle, 1 + stretch * 0.5, 1 - stretch * 0.28);
-        place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.3, 1 - stretch * 0.18);
+        const stretch = Math.min(speed * 0.04, 1.1);
+        // Let trailing blobs lag further — the goo weld between them is what
+        // reads as stretching/warping fluid (tight clamps look like one static ball)
+        const midX = Math.max(-30, Math.min(30, m.x - c.x));
+        const midY = Math.max(-30, Math.min(30, m.y - c.y));
+        const tailX = Math.max(-48, Math.min(48, t.x - c.x));
+        const tailY = Math.max(-48, Math.min(48, t.y - c.y));
+        place(core, origin, origin, moveAngle, 1 + stretch, 1 - stretch * 0.4);
+        place(mid, origin + midX, origin + midY, moveAngle, 1 + stretch * 0.6, 1 - stretch * 0.28);
+        place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.18);
         if (text) text.style.transform = `translate3d(${m.x}px,${m.y}px,0) translate(-50%,-50%)`;
       }
 
@@ -607,13 +608,21 @@
     const getScroll = () => Math.max(0, rail.scrollWidth - viewport.clientWidth);
     const isMob = mobile();
 
-    // Pin when work hits the top — image tops land right under the Drag/scroll hint
+    // Pin when the section is centered in the viewport so panel titles stay visible
+    // even in short/non-fullscreen windows. If the section is taller than the window,
+    // this pushes the top above the viewport edge to keep the rail centered.
+    const workSection = document.querySelector(".work");
+    const pinStart = () => {
+      const offset = Math.round((window.innerHeight - workSection.offsetHeight) / 2);
+      return `top ${offset}px`;
+    };
+
     gsap.to(rail, {
       x: () => -getScroll(),
       ease: "none",
       scrollTrigger: {
         trigger: ".work",
-        start: "top top",
+        start: pinStart,
         end: () =>
           `+=${getScroll() * (isMob ? 1.35 : 1) + window.innerHeight * (isMob ? 0.55 : 0.35)}`,
         pin: true,
