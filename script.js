@@ -266,8 +266,13 @@
     const text = cursor.querySelector(".cursor__text");
     const origin = 80;
 
-    // Goo filter is on the SVG <g> itself (Safari ignores CSS filter:url on HTML).
-    // Keep the same-document # reference — most reliable across Safari + Chromium.
+    // Safari still honors filterRes (deprecated elsewhere). Scale it to the Retina DPR
+    // so the goo doesn't render as a chunky low-res bitmap.
+    const gooFilter = document.getElementById("cursor-goo");
+    if (gooFilter) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      gooFilter.setAttribute("filterRes", String(Math.round(512 * dpr)));
+    }
 
     let mx = innerWidth / 2;
     let my = innerHeight / 2;

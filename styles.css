@@ -135,7 +135,7 @@ ul, ol { list-style: none; }
   margin: -80px 0 0 -80px;
   background: transparent;
   mix-blend-mode: difference;
-  will-change: transform;
+  /* Avoid will-change here — Safari can promote filtered SVG to a low-res layer */
   pointer-events: none;
 }
 .cursor__svg {
@@ -144,6 +144,7 @@ ul, ol { list-style: none; }
   height: 160px;
   overflow: visible;
   pointer-events: none;
+  shape-rendering: geometricPrecision;
 }
 .cursor__text {
   position: fixed;

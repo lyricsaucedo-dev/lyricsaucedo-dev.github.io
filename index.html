@@ -29,9 +29,29 @@
     <div class="cursor__blend" id="cursorBlend">
       <svg class="cursor__svg" width="160" height="160" viewBox="0 0 160 160" overflow="visible">
         <defs>
-          <filter id="cursor-goo" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12" result="goo" />
+          <!--
+            Safari: objectBoundingBox + auto filterRes → chunky Retina pixels.
+            userSpaceOnUse + explicit filterRes keeps the goo smooth.
+          -->
+          <filter
+            id="cursor-goo"
+            filterUnits="userSpaceOnUse"
+            x="-48"
+            y="-48"
+            width="256"
+            height="256"
+            filterRes="1024"
+            color-interpolation-filters="sRGB"
+          >
+            <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
+            <feColorMatrix
+              in="blur"
+              mode="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"
+              result="goo"
+            />
+            <!-- Tiny post-blur anti-aliases Safari's harsh threshold -->
+            <feGaussianBlur in="goo" stdDeviation="0.55" result="soft" />
           </filter>
         </defs>
         <!-- Filter MUST be on SVG content — Safari ignores CSS filter:url() on HTML blobs -->
