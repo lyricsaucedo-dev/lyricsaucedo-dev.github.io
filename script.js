@@ -259,21 +259,13 @@
 
     document.body.classList.add("has-cursor");
     const blend = cursor.querySelector(".cursor__blend");
-    const goo = cursor.querySelector(".cursor__goo");
     const core = cursor.querySelector(".cursor__blob--core");
     const mid = cursor.querySelector(".cursor__blob--mid");
     const tail = cursor.querySelector(".cursor__blob--tail");
     const spikes = [...cursor.querySelectorAll(".cursor__spike")];
     const text = cursor.querySelector(".cursor__text");
-    // Goo cell is 160×160; local origin is its center
-    const origin = 80;
-
-    // Safari needs an absolute filter URL or url(#id) is ignored
-    if (goo) {
-      const base = window.location.href.split("#")[0];
-      goo.style.filter = `url("${base}#cursor-goo")`;
-      goo.style.background = "transparent";
-    }
+    // Goo cell is 140×140; local origin is its center
+    const origin = 70;
 
     let mx = innerWidth / 2;
     let my = innerHeight / 2;
@@ -341,27 +333,26 @@
       if (blend) blend.style.transform = `translate3d(${c.x}px,${c.y}px,0)`;
 
       if (hovering) {
-        // Ferrofluid: blobs stay overlapping so SVG goo merges them into spikes
+        // Ferrofluid: keep spikes overlapping the core so contrast merges them
         const toMagX = magnet.x - c.x;
         const toMagY = magnet.y - c.y;
         const magAngle = Math.atan2(toMagY, toMagX);
-        place(core, origin, origin, 0, 1.08, 1.08);
+        place(core, origin, origin, 0, 1.1, 1.1);
         place(mid, origin + Math.cos(magAngle) * 2, origin + Math.sin(magAngle) * 2, 0, 1, 1);
         place(tail, origin - Math.cos(magAngle) * 2, origin - Math.sin(magAngle) * 2, 0, 1, 1);
 
         const n = spikes.length || 1;
         spikes.forEach((spike, i) => {
           const base = (i / n) * Math.PI * 2 + time * 0.7;
-          const angled = base * 0.5 + magAngle * 0.5 + Math.sin(time * 2.2 + i) * 0.12;
-          // Keep spikes close enough to core that goo merges (not separate ovals)
-          const len = 10 + Math.sin(time * 4.5 + i * 1.3) * 4 + (i % 2) * 2;
+          const angled = base * 0.45 + magAngle * 0.55 + Math.sin(time * 2.2 + i) * 0.1;
+          const len = 8 + Math.sin(time * 4.5 + i * 1.3) * 3;
           place(
             spike,
             origin + Math.cos(angled) * len,
             origin + Math.sin(angled) * len,
             (angled * 180) / Math.PI + 90,
-            0.7,
-            1.35 + Math.sin(time * 5 + i) * 0.2
+            0.85,
+            1.5 + Math.sin(time * 5 + i) * 0.25
           );
         });
 
@@ -370,15 +361,15 @@
         }
       } else {
         spikes.forEach((spike) => place(spike, -9999, -9999));
-        const stretch = Math.min(speed * 0.032, 0.85);
-        // Clamp lag inside the goo cell so shapes merge into one liquid mass
-        const midX = Math.max(-28, Math.min(28, m.x - c.x));
-        const midY = Math.max(-28, Math.min(28, m.y - c.y));
-        const tailX = Math.max(-40, Math.min(40, t.x - c.x));
-        const tailY = Math.max(-40, Math.min(40, t.y - c.y));
-        place(core, origin, origin, moveAngle, 1 + stretch, 1 - stretch * 0.42);
-        place(mid, origin + midX, origin + midY, moveAngle, 1 + stretch * 0.5, 1 - stretch * 0.28);
-        place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.3, 1 - stretch * 0.18);
+        const stretch = Math.min(speed * 0.034, 0.9);
+        // Tight lag so blur+contrast merges into one liquid mass
+        const midX = Math.max(-18, Math.min(18, m.x - c.x));
+        const midY = Math.max(-18, Math.min(18, m.y - c.y));
+        const tailX = Math.max(-28, Math.min(28, t.x - c.x));
+        const tailY = Math.max(-28, Math.min(28, t.y - c.y));
+        place(core, origin, origin, moveAngle, 1 + stretch, 1 - stretch * 0.45);
+        place(mid, origin + midX, origin + midY, moveAngle, 1 + stretch * 0.55, 1 - stretch * 0.3);
+        place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.2);
         if (text) text.style.transform = `translate3d(${m.x}px,${m.y}px,0) translate(-50%,-50%)`;
       }
 

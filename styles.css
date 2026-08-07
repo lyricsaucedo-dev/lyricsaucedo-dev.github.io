@@ -121,21 +121,18 @@ ul, ol { list-style: none; }
   transition: opacity 0.3s;
 }
 .cursor.on { opacity: 1; }
-.cursor-filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-/* Blend wrapper — NEVER put mix-blend on the same node as the SVG filter (Safari paints a black square) */
+/*
+  CSS goo (Safari-safe):
+  - Blurred white blobs on a black plate + contrast = liquid merge
+  - mix-blend on the PARENT only so the black plate cancels out (no square)
+*/
 .cursor__blend {
   position: fixed;
   top: 0;
   left: 0;
-  width: 160px;
-  height: 160px;
-  margin: -80px 0 0 -80px;
+  width: 140px;
+  height: 140px;
+  margin: -70px 0 0 -70px;
   background: transparent;
   mix-blend-mode: difference;
   will-change: transform;
@@ -146,9 +143,9 @@ ul, ol { list-style: none; }
   inset: 0;
   width: 100%;
   height: 100%;
-  background: transparent;
+  background: #000;
+  filter: contrast(60);
   pointer-events: none;
-  /* filter set in JS with absolute url for Safari */
 }
 .cursor__blob,
 .cursor__spike {
@@ -156,7 +153,6 @@ ul, ol { list-style: none; }
   top: 0;
   left: 0;
   will-change: transform;
-  filter: none;
 }
 .cursor__text {
   position: fixed;
@@ -177,58 +173,58 @@ ul, ol { list-style: none; }
   display: block;
   border-radius: 50%;
   background: #fff;
+  filter: blur(10px);
 }
 .cursor__spike {
   display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   background: #fff;
+  filter: blur(8px);
   opacity: 0;
   transform: translate3d(-9999px, -9999px, 0);
   transition: opacity 0.28s, width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cursor__blob--core {
-  width: 18px;
-  height: 18px;
-}
-.cursor__blob--mid {
-  width: 26px;
-  height: 26px;
-  opacity: 0.95;
-}
-.cursor__blob--tail {
-  width: 34px;
-  height: 34px;
-  opacity: 0.8;
-}
-.cursor.is-link .cursor__blob--core,
-.cursor.is-view .cursor__blob--core {
   width: 22px;
   height: 22px;
 }
+.cursor__blob--mid {
+  width: 30px;
+  height: 30px;
+}
+.cursor__blob--tail {
+  width: 38px;
+  height: 38px;
+}
+.cursor.is-link .cursor__blob--core,
+.cursor.is-view .cursor__blob--core {
+  width: 26px;
+  height: 26px;
+}
 .cursor.is-link .cursor__blob--mid,
 .cursor.is-view .cursor__blob--mid {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
 }
 .cursor.is-link .cursor__blob--tail,
 .cursor.is-view .cursor__blob--tail {
-  width: 10px;
-  height: 10px;
+  width: 14px;
+  height: 14px;
 }
 .cursor.is-link .cursor__spike,
 .cursor.is-view .cursor__spike {
   opacity: 1;
-  width: 8px;
-  height: 22px;
+  width: 10px;
+  height: 18px;
+  border-radius: 50%;
 }
 .cursor__blob--core,
 .cursor__blob--mid,
 .cursor__blob--tail {
   transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.3s;
+    height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cursor.is-view .cursor__text { opacity: 1; }
 .cursor.is-view .cursor__text::before { content: "Open"; }
