@@ -25,18 +25,20 @@
   <div class="progress" id="progress" aria-hidden="true"></div>
 
   <div class="cursor" id="cursor" aria-hidden="true">
-    <div class="cursor__goo" id="cursorGoo">
-      <span class="cursor__blob cursor__blob--core"></span>
-      <span class="cursor__blob cursor__blob--mid"></span>
-      <span class="cursor__blob cursor__blob--tail"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
-      <span class="cursor__spike"></span>
+    <div class="cursor__blend" id="cursorBlend">
+      <div class="cursor__goo" id="cursorGoo">
+        <span class="cursor__blob cursor__blob--core"></span>
+        <span class="cursor__blob cursor__blob--mid"></span>
+        <span class="cursor__blob cursor__blob--tail"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+        <span class="cursor__spike"></span>
+      </div>
     </div>
     <span class="cursor__text"></span>
   </div>
@@ -44,7 +46,7 @@
     <defs>
       <filter id="cursor-goo" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
         <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -10" result="goo" />
+        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12" result="goo" />
       </filter>
     </defs>
   </svg>
@@ -145,7 +147,6 @@
             <span class="clip"><span class="clip__in">do the selling.</span></span>
           </h2>
         </div>
-        <p class="work__hint" aria-hidden="true"><span class="work__hint-d">Drag / scroll →</span><span class="work__hint-m">Scroll ↓</span></p>
       </div>
 
       <div class="work__viewport" id="workViewport">

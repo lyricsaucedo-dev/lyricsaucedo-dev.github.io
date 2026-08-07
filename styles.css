@@ -129,23 +129,29 @@ ul, ol { list-style: none; }
   pointer-events: none;
 }
 /*
-  One stretching blob (Comet/Windows look):
-  SVG goo on this node merges the circles. Black fill + mix-blend difference
-  cancels Safari’s filter buffer (the black square) — black difference = invisible.
+  True metaball goo (like your reference): sharp circles → SVG blur+threshold → solid merged blob.
+  mix-blend stays on the OUTER wrapper only — Safari paints a black square if blend+filter share a node.
 */
-.cursor__goo {
+.cursor__blend {
   position: fixed;
   top: 0;
   left: 0;
-  width: 180px;
-  height: 180px;
-  margin: -90px 0 0 -90px;
-  background: #000;
+  width: 160px;
+  height: 160px;
+  margin: -80px 0 0 -80px;
+  background: transparent;
   mix-blend-mode: difference;
   will-change: transform;
   pointer-events: none;
-  filter: url(#cursor-goo);
-  -webkit-filter: url(#cursor-goo);
+}
+.cursor__goo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  pointer-events: none;
+  /* filter applied in JS — Safari needs an absolute # url */
 }
 .cursor__blob,
 .cursor__spike {
@@ -189,12 +195,12 @@ ul, ol { list-style: none; }
   height: 18px;
 }
 .cursor__blob--mid {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
 }
 .cursor__blob--tail {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
 }
 .cursor.is-link .cursor__blob--core,
 .cursor.is-view .cursor__blob--core {
@@ -687,16 +693,12 @@ ul, ol { list-style: none; }
 /* â€”â€”â€” Work â€”â€”â€” */
 .work {
   position: relative;
-  padding: 6rem 0 0;
+  padding: 4rem 0 0;
   background: var(--bg-2);
   border-top: 1px solid var(--line);
 }
 .work__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 2rem;
-  padding: 0 clamp(1.25rem, 3vw, 2.5rem) 1.25rem;
+  padding: 0 clamp(1.25rem, 3vw, 2.5rem) 1rem;
 }
 .work__title {
   font-family: var(--display);
@@ -705,19 +707,10 @@ ul, ol { list-style: none; }
   line-height: 1.05;
   letter-spacing: -0.03em;
 }
-.work__hint {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--cream-3);
-  padding-bottom: 0.5rem;
-  white-space: nowrap;
-}
-.work__hint-m { display: none; }
 
 .work__viewport {
   overflow: hidden;
-  padding-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
 }
 .work__rail {
   display: flex;
@@ -729,7 +722,8 @@ ul, ol { list-style: none; }
 
 .panel {
   position: relative;
-  width: min(72vw, 620px);
+  /* Cap by viewport height so image + title fit when pinned centered */
+  width: min(72vw, 620px, calc((100svh - 16rem) * 4 / 3));
   flex-shrink: 0;
   display: block;
 }
@@ -1167,7 +1161,7 @@ ul, ol { list-style: none; }
   .cap--split { grid-template-columns: 1fr; gap: 2rem; }
   .cap--grid .cap__tiles { grid-template-columns: 1fr 1fr; }
   .intro__feature { max-width: min(420px, 100%); }
-  .panel { width: min(78vw, 520px); }
+  .panel { width: min(78vw, 520px, calc((100svh - 15rem) * 4 / 3)); }
 }
 
 body.nav-open { overflow: hidden; }
@@ -1300,12 +1294,9 @@ body.nav-open { overflow: hidden; }
     max-width: 100%;
     width: min(100%, 420px);
   }
-  .work__hint { display: block; font-size: 0.7rem; }
-  .work__hint-d { display: none; }
-  .work__hint-m { display: inline; }
-  .work__head { padding: 0 1rem 1.5rem; }
+  .work__head { padding: 0 1rem 1rem; }
   .work__rail { padding: 0 1rem; gap: 0.9rem; }
-  .panel { width: min(82vw, 420px); }
+  .panel { width: min(82vw, 420px, calc((100svh - 14rem) * 4 / 3)); }
   .panel__meta h3 { font-size: 1.2rem; }
 
   .craft { padding: 4rem 0 2.5rem; }
