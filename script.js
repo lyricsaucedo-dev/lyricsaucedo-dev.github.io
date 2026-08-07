@@ -259,7 +259,6 @@
 
     document.body.classList.add("has-cursor");
     const blend = cursor.querySelector(".cursor__blend");
-    const goo = cursor.querySelector(".cursor__goo");
     const core = cursor.querySelector(".cursor__blob--core");
     const mid = cursor.querySelector(".cursor__blob--mid");
     const tail = cursor.querySelector(".cursor__blob--tail");
@@ -267,25 +266,8 @@
     const text = cursor.querySelector(".cursor__text");
     const origin = 80;
 
-    // Apply metaball SVG goo — try several Safari-friendly forms
-    if (goo) {
-      const abs = `url("${window.location.href.split("#")[0]}#cursor-goo")`;
-      const rel = "url(#cursor-goo)";
-      const data =
-        'url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"><filter id="g" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="10" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12"/></filter></svg>#g\')';
-      goo.style.setProperty("filter", abs);
-      // If Safari ignored absolute page URL filters, fall back
-      requestAnimationFrame(() => {
-        const applied = getComputedStyle(goo).filter || "";
-        if (!applied || applied === "none") {
-          goo.style.setProperty("filter", rel);
-          requestAnimationFrame(() => {
-            const again = getComputedStyle(goo).filter || "";
-            if (!again || again === "none") goo.style.setProperty("filter", data);
-          });
-        }
-      });
-    }
+    // Goo filter is on the SVG <g> itself (Safari ignores CSS filter:url on HTML).
+    // Keep the same-document # reference — most reliable across Safari + Chromium.
 
     let mx = innerWidth / 2;
     let my = innerHeight / 2;
@@ -326,9 +308,13 @@
       cursor.classList.remove("on", "is-view", "is-link");
     });
 
+    // SVG transforms (circles sit at 0,0) — works the same in Safari + Chromium
     const place = (el, x, y, rot = 0, sx = 1, sy = 1) => {
       if (!el) return;
-      el.style.transform = `translate3d(${x}px,${y}px,0) translate(-50%,-50%) rotate(${rot}deg) scale(${sx}, ${sy})`;
+      el.setAttribute(
+        "transform",
+        `translate(${x},${y}) rotate(${rot}) scale(${sx},${sy})`
+      );
     };
 
     const loop = () => {
@@ -382,8 +368,7 @@
       } else {
         spikes.forEach((spike) => place(spike, -9999, -9999));
         const stretch = Math.min(speed * 0.04, 1.1);
-        // Let trailing blobs lag further — the goo weld between them is what
-        // reads as stretching/warping fluid (tight clamps look like one static ball)
+        // Trailing blobs lag — SVG goo welds them into one stretching fluid shape
         const midX = Math.max(-30, Math.min(30, m.x - c.x));
         const midY = Math.max(-30, Math.min(30, m.y - c.y));
         const tailX = Math.max(-48, Math.min(48, t.x - c.x));
@@ -608,13 +593,13 @@
     const getScroll = () => Math.max(0, rail.scrollWidth - viewport.clientWidth);
     const isMob = mobile();
 
-    // Pin so the project images (rail) sit in the vertical middle of the viewport,
-    // not the whole section (which includes the large head and pushes images low).
+    // Pin with the section bottom flush to the viewport bottom so the next
+    // (black) background never shows underneath while scrubbing the rail.
+    const workSection = document.querySelector(".work");
     const pinStart = () => {
       const vh = window.innerHeight;
-      // offsetTop is relative to .work (position: relative) — stable across scroll/refresh
-      const railMid = viewport.offsetTop + viewport.offsetHeight / 2;
-      const offset = Math.round(vh / 2 - railMid);
+      const h = workSection.offsetHeight;
+      const offset = h >= vh ? 0 : Math.round(vh - h);
       return `top ${offset}px`;
     };
 

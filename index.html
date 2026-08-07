@@ -25,31 +25,33 @@
   <div class="progress" id="progress" aria-hidden="true"></div>
 
   <div class="cursor" id="cursor" aria-hidden="true">
+    <!-- mix-blend on wrapper only — Safari paints a black square if blend+filter share a node -->
     <div class="cursor__blend" id="cursorBlend">
-      <div class="cursor__goo" id="cursorGoo">
-        <span class="cursor__blob cursor__blob--core"></span>
-        <span class="cursor__blob cursor__blob--mid"></span>
-        <span class="cursor__blob cursor__blob--tail"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-        <span class="cursor__spike"></span>
-      </div>
+      <svg class="cursor__svg" width="160" height="160" viewBox="0 0 160 160" overflow="visible">
+        <defs>
+          <filter id="cursor-goo" x="-80%" y="-80%" width="260%" height="260%" color-interpolation-filters="sRGB">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12" result="goo" />
+          </filter>
+        </defs>
+        <!-- Filter MUST be on SVG content — Safari ignores CSS filter:url() on HTML blobs -->
+        <g class="cursor__goo" id="cursorGoo" filter="url(#cursor-goo)">
+          <circle class="cursor__blob cursor__blob--core" r="9" fill="#fff" />
+          <circle class="cursor__blob cursor__blob--mid" r="13" fill="#fff" />
+          <circle class="cursor__blob cursor__blob--tail" r="17" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+          <ellipse class="cursor__spike" rx="3.5" ry="3.5" fill="#fff" />
+        </g>
+      </svg>
     </div>
     <span class="cursor__text"></span>
   </div>
-  <svg class="cursor-filter" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg" width="0" height="0">
-    <defs>
-      <filter id="cursor-goo" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB">
-        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-        <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -12" result="goo" />
-      </filter>
-    </defs>
-  </svg>
 
   <div class="noise" aria-hidden="true"></div>
 

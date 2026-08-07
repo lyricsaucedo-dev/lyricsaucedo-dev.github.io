@@ -111,7 +111,7 @@ ul, ol { list-style: none; }
   background-size: 160px;
 }
 
-/* â€”â€”â€” Cursor â€”â€”â€” */
+/* ——— Cursor ——— */
 .cursor {
   position: fixed;
   inset: 0;
@@ -121,15 +121,9 @@ ul, ol { list-style: none; }
   transition: opacity 0.3s;
 }
 .cursor.on { opacity: 1; }
-.cursor-filter {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
 /*
-  True metaball goo (like your reference): sharp circles → SVG blur+threshold → solid merged blob.
+  True metaball goo: SVG circles → feGaussianBlur + feColorMatrix threshold.
+  Filter lives on the SVG <g> (Safari ignores CSS filter:url on HTML elements).
   mix-blend stays on the OUTER wrapper only — Safari paints a black square if blend+filter share a node.
 */
 .cursor__blend {
@@ -144,21 +138,12 @@ ul, ol { list-style: none; }
   will-change: transform;
   pointer-events: none;
 }
-.cursor__goo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
+.cursor__svg {
+  display: block;
+  width: 160px;
+  height: 160px;
+  overflow: visible;
   pointer-events: none;
-  /* filter applied in JS — Safari needs an absolute # url */
-}
-.cursor__blob,
-.cursor__spike {
-  position: absolute;
-  top: 0;
-  left: 0;
-  will-change: transform;
 }
 .cursor__text {
   position: fixed;
@@ -175,60 +160,34 @@ ul, ol { list-style: none; }
   opacity: 0;
   transition: opacity 0.25s;
 }
-.cursor__blob {
-  display: block;
-  border-radius: 50%;
-  background: #fff;
+.cursor__blob--core {
+  transition: r 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cursor__blob--mid,
+.cursor__blob--tail {
+  transition: r 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cursor__spike {
-  display: block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #fff;
   opacity: 0;
-  transform: translate3d(-9999px, -9999px, 0);
-  transition: opacity 0.28s, width 0.35s cubic-bezier(0.22, 1, 0.36, 1), height 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.cursor__blob--core {
-  width: 18px;
-  height: 18px;
-}
-.cursor__blob--mid {
-  width: 26px;
-  height: 26px;
-}
-.cursor__blob--tail {
-  width: 34px;
-  height: 34px;
+  transition: opacity 0.28s, rx 0.35s cubic-bezier(0.22, 1, 0.36, 1), ry 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cursor.is-link .cursor__blob--core,
 .cursor.is-view .cursor__blob--core {
-  width: 22px;
-  height: 22px;
+  r: 11px;
 }
 .cursor.is-link .cursor__blob--mid,
 .cursor.is-view .cursor__blob--mid {
-  width: 16px;
-  height: 16px;
+  r: 8px;
 }
 .cursor.is-link .cursor__blob--tail,
 .cursor.is-view .cursor__blob--tail {
-  width: 10px;
-  height: 10px;
+  r: 5px;
 }
 .cursor.is-link .cursor__spike,
 .cursor.is-view .cursor__spike {
   opacity: 1;
-  width: 8px;
-  height: 20px;
-  border-radius: 40% 40% 45% 45%;
-}
-.cursor__blob--core,
-.cursor__blob--mid,
-.cursor__blob--tail {
-  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  rx: 4px;
+  ry: 10px;
 }
 .cursor.is-view .cursor__text { opacity: 1; }
 .cursor.is-view .cursor__text::before { content: "Open"; }
