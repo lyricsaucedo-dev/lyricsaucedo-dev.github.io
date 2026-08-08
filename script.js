@@ -600,15 +600,12 @@
     const viewH = () =>
       Math.round(window.visualViewport?.height || window.innerHeight);
 
-    // Desktop: flush section bottom (no black gap). Mobile: center the rail so
-    // project tiles sit mid-screen with titles readable.
+    // Desktop: flush section bottom (no black gap under the rail).
+    // Mobile: section is layout-centered in CSS at 100dvh — pin flush to top.
     const workSection = document.querySelector(".work");
     const pinStart = () => {
+      if (isMob) return "top top";
       const vh = viewH();
-      if (isMob) {
-        const railMid = viewport.offsetTop + viewport.offsetHeight / 2;
-        return `top ${Math.round(vh / 2 - railMid)}px`;
-      }
       const h = workSection.offsetHeight;
       return `top ${Math.round(vh - h)}px`;
     };
@@ -620,10 +617,9 @@
         trigger: ".work",
         start: pinStart,
         end: () =>
-          `+=${getScroll() * (isMob ? 1.15 : 1) + viewH() * (isMob ? 0.4 : 0.25)}`,
+          `+=${getScroll() * (isMob ? 1.05 : 1) + viewH() * (isMob ? 0.35 : 0.25)}`,
         pin: true,
-        // Lenis already smooths scroll — high scrub = rubber-band lag
-        scrub: isMob ? 0.35 : true,
+        scrub: isMob ? 0.3 : true,
         invalidateOnRefresh: true,
         anticipatePin: 0,
         fastScrollEnd: true,
@@ -641,25 +637,27 @@
       img.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
     });
 
-    // Soften per-panel image scrub — nested scrub + Lenis was a stutter source
-    gsap.utils.toArray(".panel").forEach((panel) => {
-      const img = panel.querySelector("img");
-      if (!img) return;
-      gsap.fromTo(
-        img,
-        { scale: 1.1 },
-        {
-          scale: 1.02,
-          ease: "none",
-          scrollTrigger: {
-            trigger: panel,
-            start: "top 90%",
-            end: "top 30%",
-            scrub: 0.35,
-          },
-        }
-      );
-    });
+    // Desktop-only image scrub — nested scrub fights touch momentum on phones
+    if (!isMob) {
+      gsap.utils.toArray(".panel").forEach((panel) => {
+        const img = panel.querySelector("img");
+        if (!img) return;
+        gsap.fromTo(
+          img,
+          { scale: 1.1 },
+          {
+            scale: 1.02,
+            ease: "none",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 90%",
+              end: "top 30%",
+              scrub: 0.35,
+            },
+          }
+        );
+      });
+    }
   }
 
   // ——— Craft demos ———
@@ -715,16 +713,18 @@
       const isMob = mobile();
       const viewH = () =>
         Math.round(window.visualViewport?.height || window.innerHeight);
+      const typeSection = stage.closest(".cap--type") || stage;
 
-      // Same pinned kinetic reveal on mobile + desktop — stage fills the viewport
-      // so the next craft block stays hidden until the word reveal finishes.
+      // Mobile pins the whole kinetic block as a full-screen scene.
+      // Desktop pins just the stage mid-viewport like before.
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: stage,
+          trigger: isMob ? typeSection : stage,
           start: isMob ? "top top" : "top 28%",
-          end: () => (isMob ? `+=${Math.round(viewH() * 1.15)}` : "+=90%"),
-          scrub: isMob ? 0.4 : 0.55,
-          pin: stage,
+          end: () =>
+            isMob ? `+=${Math.round(viewH() * 1.25)}` : "+=90%",
+          scrub: isMob ? 0.35 : 0.55,
+          pin: isMob ? typeSection : stage,
           anticipatePin: 0,
           invalidateOnRefresh: true,
           pinType: lenis ? "transform" : "fixed",
@@ -743,7 +743,7 @@
         yPercent: 0,
         opacity: 1,
         ease: "none",
-        stagger: isMob ? 0.14 : 0.18,
+        stagger: isMob ? 0.12 : 0.18,
       });
     }
 
