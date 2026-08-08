@@ -805,7 +805,7 @@ ul, ol { list-style: none; }
   place-items: center;
   text-align: center;
   padding: 2rem 0 1rem;
-  background: var(--bg-2);
+  background: transparent;
 }
 .cap__scroll {
   position: absolute;
@@ -1291,15 +1291,17 @@ body.nav-open { overflow: hidden; }
     width: min(100%, 420px);
   }
 
-  /* ——— Work: full-screen centered pin ——— */
+  /* ——— Work: fill the pin viewport so no black band under tiles ——— */
   .work {
     min-height: 100svh;
     min-height: 100dvh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 0;
     box-sizing: border-box;
+    background: var(--bg-2) !important;
   }
   .work__head {
     padding: 0 1.1rem 0.85rem;
@@ -1307,7 +1309,7 @@ body.nav-open { overflow: hidden; }
   }
   .work__title { display: none; }
   .work__viewport {
-    padding-bottom: 0.35rem;
+    padding-bottom: 0.25rem;
     flex-shrink: 0;
   }
   .work__rail {
@@ -1325,9 +1327,10 @@ body.nav-open { overflow: hidden; }
   .panel__meta h3 { font-size: 1.15rem; }
   .panel__meta p { font-size: 0.72rem; }
 
-  /* ——— Craft / kinetic: full-screen immersive pin ——— */
+  /* ——— Craft / kinetic: seamless full-screen, no grey card ——— */
   .craft {
     padding: 3.5rem 0 2rem;
+    background: var(--bg);
   }
   .craft__intro {
     padding: 0 1.1rem 2.25rem;
@@ -1342,13 +1345,17 @@ body.nav-open { overflow: hidden; }
     position: relative;
     min-height: 100svh;
     min-height: 100dvh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 0 1.1rem;
     margin: 0;
     box-sizing: border-box;
-    background: var(--bg-2);
+    background: var(--bg) !important;
+    border-top: none;
+    border: none;
+    box-shadow: none;
   }
   .cap--type .cap__head {
     position: absolute;
@@ -1371,7 +1378,9 @@ body.nav-open { overflow: hidden; }
     place-items: center;
     padding: 4.5rem 0 3rem;
     box-sizing: border-box;
-    background: transparent;
+    background: transparent !important;
+    border: none;
+    box-shadow: none;
   }
   .cap__display {
     font-size: clamp(2.15rem, 10vw, 3.25rem);
@@ -1430,6 +1439,16 @@ body.nav-open { overflow: hidden; }
   .panel__meta h3 { font-size: 0.95rem; }
   .cap__display { font-size: clamp(1.6rem, 7vw, 2.2rem); }
   .cap--type .cap__stage { padding: 3rem 0 2rem; }
+}
+
+/* Keep GSAP pin spacers the same color as their section (avoids black/grey bands) */
+@media (max-width: 860px) {
+  .pin-spacer:has(> .work) {
+    background: var(--bg-2) !important;
+  }
+  .pin-spacer:has(> .cap--type) {
+    background: var(--bg) !important;
+  }
 }
 
 @media (max-width: 520px) {

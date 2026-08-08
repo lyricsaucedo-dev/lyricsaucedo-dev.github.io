@@ -601,7 +601,8 @@
       Math.round(window.visualViewport?.height || window.innerHeight);
 
     // Desktop: flush section bottom (no black gap under the rail).
-    // Mobile: section is layout-centered in CSS at 100dvh — pin flush to top.
+    // Mobile: fill the viewport with the work background and pin flush,
+    // tiles stay centered via flex — no contrasting black band underneath.
     const workSection = document.querySelector(".work");
     const pinStart = () => {
       if (isMob) return "top top";
