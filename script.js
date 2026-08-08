@@ -600,12 +600,15 @@
     const viewH = () =>
       Math.round(window.visualViewport?.height || window.innerHeight);
 
-    // Always flush the section bottom to the viewport bottom.
-    // If the section is taller than the window, the head clips above so
-    // panel titles/meta stay readable (important on short Safari windows).
+    // Desktop: flush section bottom (no black gap). Mobile: center the rail so
+    // project tiles sit mid-screen with titles readable.
     const workSection = document.querySelector(".work");
     const pinStart = () => {
       const vh = viewH();
+      if (isMob) {
+        const railMid = viewport.offsetTop + viewport.offsetHeight / 2;
+        return `top ${Math.round(vh / 2 - railMid)}px`;
+      }
       const h = workSection.offsetHeight;
       return `top ${Math.round(vh - h)}px`;
     };
@@ -617,10 +620,10 @@
         trigger: ".work",
         start: pinStart,
         end: () =>
-          `+=${getScroll() * (isMob ? 1.2 : 1) + viewH() * (isMob ? 0.45 : 0.25)}`,
+          `+=${getScroll() * (isMob ? 1.15 : 1) + viewH() * (isMob ? 0.4 : 0.25)}`,
         pin: true,
         // Lenis already smooths scroll — high scrub = rubber-band lag
-        scrub: isMob ? 0.45 : true,
+        scrub: isMob ? 0.35 : true,
         invalidateOnRefresh: true,
         anticipatePin: 0,
         fastScrollEnd: true,
@@ -709,38 +712,20 @@
       const words = display.querySelectorAll(".cap__word");
       gsap.set(inners, { yPercent: 110, opacity: 0.15 });
 
-      if (mobile()) {
-        gsap.to(inners, {
-          yPercent: 0,
-          opacity: 1,
-          ease: "none",
-          stagger: 0.14,
-          scrollTrigger: {
-            trigger: stage,
-            start: "top 85%",
-            end: "bottom 15%",
-            scrub: 1.8,
-            onUpdate: (self) => {
-              if (thumb) thumb.style.height = `${self.progress * 100}%`;
-              if (hint) hint.classList.toggle("is-done", self.progress > 0.92);
-              words.forEach((word, i) => {
-                const start = i / words.length;
-                word.classList.toggle("is-on", self.progress > start + 0.05);
-              });
-            },
-          },
-        });
-        return;
-      }
+      const isMob = mobile();
+      const viewH = () =>
+        Math.round(window.visualViewport?.height || window.innerHeight);
 
+      // Same pinned kinetic reveal on mobile + desktop — stage fills the viewport
+      // so the next craft block stays hidden until the word reveal finishes.
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: stage,
-          start: "top 28%",
-          end: "+=90%",
-          scrub: 0.55,
+          start: isMob ? "top top" : "top 28%",
+          end: () => (isMob ? `+=${Math.round(viewH() * 1.15)}` : "+=90%"),
+          scrub: isMob ? 0.4 : 0.55,
           pin: stage,
-          anticipatePin: 1,
+          anticipatePin: 0,
           invalidateOnRefresh: true,
           pinType: lenis ? "transform" : "fixed",
           onUpdate: (self) => {
@@ -758,7 +743,7 @@
         yPercent: 0,
         opacity: 1,
         ease: "none",
-        stagger: 0.18,
+        stagger: isMob ? 0.14 : 0.18,
       });
     }
 
@@ -773,7 +758,7 @@
           clipPath: "inset(0% 0 0 0)",
           duration: 1.3,
           ease: "power4.inOut",
-          scrollTrigger: { trigger: frame, start: "top 75%" },
+          scrollTrigger: { trigger: frame, start: "top 80%" },
           onComplete: () => frame.classList.add("is-open"),
         }
       );

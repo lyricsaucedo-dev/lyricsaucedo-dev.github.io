@@ -694,6 +694,11 @@ ul, ol { list-style: none; }
   background: var(--bg);
   border-radius: 4px;
 }
+.panel__media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .panel__media img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -800,6 +805,7 @@ ul, ol { list-style: none; }
   place-items: center;
   text-align: center;
   padding: 2rem 0 1rem;
+  background: var(--bg-2);
 }
 .cap__scroll {
   position: absolute;
@@ -907,6 +913,11 @@ ul, ol { list-style: none; }
   clip-path: inset(0 0 100% 0);
 }
 .cap__frame.is-open { clip-path: inset(0 0 0 0); }
+.cap__frame picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 .cap__frame img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -1278,16 +1289,41 @@ body.nav-open { overflow: hidden; }
     max-width: 100%;
     width: min(100%, 420px);
   }
-  .work__head { padding: 0 1rem 1rem; }
+  .work { padding-top: 2rem; }
+  .work__head { padding: 0 1rem 0.75rem; }
+  .work__title { font-size: clamp(1.55rem, 7vw, 2.1rem); }
+  .work__viewport { padding-bottom: 1rem; }
   .work__rail { padding: 0 1rem; gap: 0.9rem; }
-  .panel { width: min(82vw, 420px, calc((100svh - 14rem) * 4 / 3), calc((100dvh - 14rem) * 4 / 3)); }
-  .panel__meta h3 { font-size: 1.2rem; }
+  /* Size panels to sit comfortably centered with titles on phone screens */
+  .panel {
+    width: min(78vw, 340px, calc((100dvh - 11rem) * 4 / 3));
+  }
+  .panel__meta { padding-top: 0.75rem; }
+  .panel__meta h3 { font-size: 1.15rem; }
+  .panel__meta p { font-size: 0.75rem; }
 
   .craft { padding: 4rem 0 2.5rem; }
   .craft__intro { padding: 0 1rem 2rem; }
   .cap { padding: 2.5rem 1rem; }
-  .cap__display { font-size: clamp(1.7rem, 8vw, 2.8rem); }
-  .cap--type .cap__stage { min-height: 36vh; }
+  .cap--type {
+    padding-top: 1.5rem;
+    padding-bottom: 0;
+  }
+  .cap--type .cap__head { margin-bottom: 0.5rem; }
+  .cap--type .cap__lead { margin-bottom: 1rem; font-size: 0.95rem; }
+  .cap--type .cap__note { display: none; }
+  .cap__display { font-size: clamp(2rem, 9vw, 3.1rem); }
+  /* Full-viewport kinetic pin — next section stays off-screen until reveal ends */
+  .cap--type .cap__stage {
+    min-height: 100svh;
+    min-height: 100dvh;
+    padding: 1rem 0;
+    box-sizing: border-box;
+  }
+  .cap__scroll {
+    right: 0.35rem;
+    height: min(28%, 5.5rem);
+  }
   .ticker {
     margin-left: -1rem;
     margin-right: -1rem;
