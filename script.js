@@ -595,17 +595,16 @@
       return;
     }
 
+    // Mobile uses a static 2-column grid — no horizontal pin
+    if (mobile()) return;
+
     const getScroll = () => Math.max(0, rail.scrollWidth - viewport.clientWidth);
-    const isMob = mobile();
     const viewH = () =>
       Math.round(window.visualViewport?.height || window.innerHeight);
 
-    // Desktop: flush section bottom (no black gap under the rail).
-    // Mobile: fill the viewport with the work background and pin flush,
-    // tiles stay centered via flex — no contrasting black band underneath.
+    // Flush section bottom so no black gap under the rail while scrubbing
     const workSection = document.querySelector(".work");
     const pinStart = () => {
-      if (isMob) return "top top";
       const vh = viewH();
       const h = workSection.offsetHeight;
       return `top ${Math.round(vh - h)}px`;
@@ -617,10 +616,9 @@
       scrollTrigger: {
         trigger: ".work",
         start: pinStart,
-        end: () =>
-          `+=${getScroll() * (isMob ? 1.05 : 1) + viewH() * (isMob ? 0.35 : 0.25)}`,
+        end: () => `+=${getScroll() + viewH() * 0.25}`,
         pin: true,
-        scrub: isMob ? 0.3 : true,
+        scrub: true,
         invalidateOnRefresh: true,
         anticipatePin: 0,
         fastScrollEnd: true,
@@ -628,37 +626,30 @@
       },
     });
 
-    if (isMob) {
-      addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
-    }
-
     // Recalc after project images load (wrong pin distance is common on Mac)
     rail.querySelectorAll("img").forEach((img) => {
       if (img.complete) return;
       img.addEventListener("load", () => ScrollTrigger.refresh(), { once: true });
     });
 
-    // Desktop-only image scrub — nested scrub fights touch momentum on phones
-    if (!isMob) {
-      gsap.utils.toArray(".panel").forEach((panel) => {
-        const img = panel.querySelector("img");
-        if (!img) return;
-        gsap.fromTo(
-          img,
-          { scale: 1.1 },
-          {
-            scale: 1.02,
-            ease: "none",
-            scrollTrigger: {
-              trigger: panel,
-              start: "top 90%",
-              end: "top 30%",
-              scrub: 0.35,
-            },
-          }
-        );
-      });
-    }
+    gsap.utils.toArray(".panel").forEach((panel) => {
+      const img = panel.querySelector("img");
+      if (!img) return;
+      gsap.fromTo(
+        img,
+        { scale: 1.1 },
+        {
+          scale: 1.02,
+          ease: "none",
+          scrollTrigger: {
+            trigger: panel,
+            start: "top 90%",
+            end: "top 30%",
+            scrub: 0.35,
+          },
+        }
+      );
+    });
   }
 
   // ——— Craft demos ———
