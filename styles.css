@@ -31,6 +31,38 @@ body {
 
 body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: none; }
 
+.mobile-note {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: grid;
+  place-items: end center;
+  padding: 1.25rem;
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  background: rgba(10, 10, 9, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.mobile-note[hidden] { display: none !important; }
+.mobile-note__card {
+  width: min(100%, 26rem);
+  padding: 1.35rem 1.35rem 1.2rem;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+.mobile-note__card p {
+  margin: 0 0 1.1rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  color: var(--cream);
+}
+.mobile-note__card .btn {
+  width: 100%;
+  justify-content: center;
+}
+
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; }
 button { font: inherit; color: inherit; background: none; border: none; }
@@ -650,6 +682,296 @@ ul, ol { list-style: none; }
 }
 .statement__line .word.is-lit { color: var(--cream); }
 
+/* ——— The Pour (signature setpiece) ——— */
+.pour {
+  position: relative;
+  height: 580vh;
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
+.pour__pin {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  perspective: 1400px;
+}
+.pour__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+}
+.pour__hud {
+  position: absolute;
+  left: clamp(1.25rem, 3vw, 2.5rem);
+  bottom: clamp(1.5rem, 4vh, 2.75rem);
+  z-index: 3;
+  pointer-events: none;
+  max-width: min(90vw, 28rem);
+}
+.pour__hud .eyebrow {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: var(--cream-3);
+}
+.pour__active {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.pour__num {
+  font-style: italic;
+  color: var(--cream-3);
+  font-size: 0.72em;
+}
+.pour__meta {
+  margin: 0.45rem 0 0;
+  color: var(--cream-3);
+  font-size: 0.9rem;
+}
+.pour__cta {
+  margin: 0.85rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream-2);
+  opacity: 0.85;
+}
+.pour__hint {
+  position: absolute;
+  right: clamp(1rem, 3vw, 2rem);
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  height: min(28vh, 8rem);
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.pour__hint.is-done { opacity: 0; }
+.pour__hint-track {
+  position: relative;
+  width: 1px;
+  flex: 1;
+  background: rgba(243, 237, 224, 0.18);
+  overflow: hidden;
+}
+.pour__hint-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: var(--cream);
+}
+.pour__hint-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cream-3);
+}
+
+.pour__intro {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  /* Sit higher in the viewport — was reading too low */
+  padding-bottom: min(28vh, 12rem);
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+.pour__intro .eyebrow {
+  display: block;
+  margin-bottom: 1.1rem;
+  color: var(--cream-3);
+}
+.pour__intro-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 7vw, 5.2rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: var(--cream);
+  transform-style: preserve-3d;
+}
+.pour__intro-line {
+  display: block;
+}
+
+/* Real Work section parked inside the pin as the tunnel mouth */
+.work.is-pour-portal {
+  position: absolute !important;
+  inset: 0;
+  z-index: 0;
+  margin: 0 !important;
+  padding-top: 3rem;
+  overflow: auto;
+  background: var(--bg-2);
+  transform-origin: 50% 38%;
+  pointer-events: none;
+}
+.work.is-pour-portal .work__viewport {
+  display: none !important;
+}
+.work.is-pour-portal .work__index {
+  display: block !important;
+}
+.work.is-pour-portal .work__title .clip__in {
+  transform: none !important;
+}
+#workPourSpacer {
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.pour__fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.pour__cascade {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1200px;
+}
+.pour__card {
+  position: absolute;
+  width: min(86vw, 340px);
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+}
+.pour__card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: top center;
+  border-radius: 4px;
+  background: var(--bg-3);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+.pour__card span {
+  display: block;
+  margin-top: 0.65rem;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+.pour__static {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  height: 100%;
+  padding: 2rem 1.25rem;
+}
+.pour__static a {
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 6vw, 2.2rem);
+  font-weight: 500;
+  color: var(--cream);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.75rem;
+}
+.pour__static a:last-child {
+  border-bottom: none;
+  color: var(--cream-2);
+  font-size: 1rem;
+  font-family: var(--sans, inherit);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+body.pour-webgl .pour__canvas { display: block; }
+body.pour-webgl .pour__fallback { display: none; }
+body.pour-cascade .pour__canvas { display: none; }
+body.pour-cascade .pour__fallback { display: block; }
+body.pour-cascade .pour__cascade { display: grid; }
+body.pour-cascade .pour__static { display: none; }
+body.pour-static .pour__canvas { display: none; }
+body.pour-static .pour__fallback { display: block; }
+body.pour-static .pour__cascade { display: none; }
+body.pour-static .pour__static { display: flex; }
+body.pour-static .pour,
+body.pour-static .pour__pin {
+  height: auto;
+  min-height: 70vh;
+}
+
+/* Desktop: Pour is the visual gallery — Work becomes a clean index */
+.work__index {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0 clamp(1.25rem, 3vw, 2.5rem) 4rem;
+  max-width: 920px;
+}
+.work__index a {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--display);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--cream);
+  text-decoration: none;
+  transition: color 0.3s, padding-left 0.35s var(--ease);
+}
+.work__index a em {
+  font-style: italic;
+  color: var(--cream-3);
+  font-size: 0.75em;
+}
+.work__index a span {
+  margin-left: auto;
+  font-family: var(--sans, inherit);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cream-3);
+}
+.work__index a:hover {
+  color: #fff;
+  padding-left: 0.5rem;
+}
+.work__index a:hover span { color: var(--cream); }
+
+@media (min-width: 861px) {
+  body.pour-webgl .work__viewport { display: none; }
+  body.pour-webgl .work__index { display: block; }
+  body.pour-webgl .work { padding-bottom: 2rem; }
+}
+
 /* â€”â€”â€” Work â€”â€”â€” */
 .work {
   position: relative;
@@ -1124,8 +1446,17 @@ ul, ol { list-style: none; }
 }
 .foot__brand img { width: 36px; height: auto; }
 .foot p { color: var(--cream-3); font-size: 0.82rem; }
-.foot a[aria-label] { color: var(--cream-2); transition: color 0.25s; }
-.foot a[aria-label]:hover { color: var(--cream); }
+.foot__socials {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.foot__socials a {
+  color: var(--cream-2);
+  transition: color 0.25s, transform 0.35s var(--ease);
+  line-height: 0;
+}
+.foot__socials a:hover { color: var(--cream); }
 
 /* Short desktop windows only — don't fight the mobile full-screen pin layout */
 @media (max-height: 860px) and (min-width: 861px) {
@@ -1290,6 +1621,24 @@ body.nav-open { overflow: hidden; }
     max-width: 100%;
     width: min(100%, 420px);
   }
+
+  /* ——— Pour: taller cascade on phones ——— */
+  .pour {
+    height: 240vh;
+  }
+  .pour__hud {
+    left: 1.1rem;
+    bottom: 1.25rem;
+  }
+  .pour__active {
+    font-size: clamp(1.45rem, 7vw, 2rem);
+  }
+  .pour__cta { display: none; }
+  .pour__hint {
+    right: 0.65rem;
+    height: min(22vh, 5.5rem);
+  }
+  .work__index { display: none !important; }
 
   /* ——— Work: static 2-column grid (no pin) ——— */
   .work {
@@ -1466,4 +1815,14 @@ body.nav-open { overflow: hidden; }
   .cap__frame img { transform: none !important; }
   .statement__line .word { color: var(--cream) !important; }
   .ticker__track { transform: none !important; }
+  .pour,
+  .pour__pin {
+    height: auto !important;
+    min-height: 70vh;
+  }
+  .pour__canvas { display: none !important; }
+  .pour__cascade { display: none !important; }
+  .pour__fallback { display: block !important; }
+  .pour__static { display: flex !important; }
+  .pour__hint { display: none !important; }
 }
