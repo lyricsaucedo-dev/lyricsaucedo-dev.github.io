@@ -731,7 +731,15 @@
       return;
     }
 
-    // Mobile / no WebGL: CSS cascade. Desktop needs THREE (loaded via ES module).
+    // Mobile: no tunnel — Work section grid only
+    if (mobile()) {
+      document.body.classList.add("pour-skip");
+      section.style.display = "none";
+      section.setAttribute("aria-hidden", "true");
+      return;
+    }
+
+    // Desktop / no WebGL: CSS cascade fallback
     const canWebGL = (() => {
       try {
         const c = document.createElement("canvas");
@@ -741,8 +749,8 @@
       }
     })();
 
-    if (mobile() || typeof THREE === "undefined" || !canvas || !canWebGL) {
-      if (typeof THREE === "undefined" && !mobile() && !reduced) {
+    if (typeof THREE === "undefined" || !canvas || !canWebGL) {
+      if (typeof THREE === "undefined" && !reduced) {
         console.warn("[pour] THREE missing — using cascade fallback. Open in Chrome at http://127.0.0.1:5173");
       }
       initPourCascade(section, pin, projects, setHud, hint, hintFill);

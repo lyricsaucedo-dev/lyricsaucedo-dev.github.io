@@ -1622,9 +1622,16 @@ body.nav-open { overflow: hidden; }
     width: min(100%, 420px);
   }
 
-  /* ——— Pour: taller cascade on phones ——— */
+  /* ——— Pour: hidden on mobile — Work 2-col grid only ——— */
+  body.pour-skip .pour {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+  }
   .pour {
-    height: 240vh;
+    height: auto;
   }
   .pour__hud {
     left: 1.1rem;
