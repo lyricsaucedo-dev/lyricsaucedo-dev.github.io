@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=atelier1" />
+  <link rel="stylesheet" href="styles.css?v=hero2" />
 </head>
 <body>
   <a href="#contact" class="hire-sticky" id="hireSticky" data-hover="link">Start a project</a>
@@ -111,6 +111,7 @@
   <main>
     <!-- INTRO -->
     <section class="intro" id="intro">
+      <canvas class="intro__canvas" id="introCanvas" aria-hidden="true"></canvas>
       <div class="intro__bg" id="introBg" aria-hidden="true">
         <img class="intro__shot is-on" src="assets/jessesparks.png" alt="" data-shot="0" />
         <img class="intro__shot" src="assets/sjrnr.png" alt="" data-shot="1" />
@@ -561,7 +562,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
   <!-- Site JS always loads — do not gate it behind Three (CSP/previews can block eval-ish CDN paths) -->
-  <script defer src="script.js?v=atelier1"></script>
+  <script defer src="script.js?v=hero4"></script>
   <!-- Three as a pure ES module (no UMD eval). Pour listens for three-ready. -->
   <script type="module">
     try {

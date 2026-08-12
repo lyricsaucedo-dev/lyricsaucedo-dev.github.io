@@ -626,14 +626,47 @@
     };
     requestAnimationFrame(tick);
 
+    const canvas = document.getElementById("introCanvas");
+    const canWebGL = (() => {
+      try {
+        const c = document.createElement("canvas");
+        return !!(c.getContext("webgl2") || c.getContext("webgl"));
+      } catch {
+        return false;
+      }
+    })();
+    const wantHero3d = !reduced && desktop() && canvas && canWebGL;
+    const hero3d = { idx: () => idx, scroll: 0 };
+
+    const startHero3d = () => {
+      if (typeof THREE === "undefined") return false;
+      document.body.classList.add("intro-webgl");
+      initIntroWebGL(items, hero3d, canvas);
+      return true;
+    };
+    if (wantHero3d) {
+      if (!startHero3d()) {
+        window.addEventListener(
+          "three-ready",
+          () => {
+            startHero3d();
+          },
+          { once: true }
+        );
+      }
+    }
+
     const bg = document.getElementById("introBg");
-    if (bg && !reduced && fine) {
+    if (!reduced && fine) {
       addEventListener(
         "scroll",
         () => {
           const y = scrollY;
-          if (y > innerHeight) return;
-          bg.style.transform = `translate3d(0,${y * 0.28}px,0)`;
+          if (y > innerHeight * 1.2) return;
+          hero3d.scroll = Math.min(1, y / innerHeight);
+          if (bg && !document.body.classList.contains("intro-webgl")) {
+            bg.style.transform = `translate3d(0,${y * 0.28}px,0)`;
+          }
         },
         { passive: true }
       );
@@ -653,11 +686,199 @@
     );
 
     const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-    tl.to(".intro .clip__in", { yPercent: 0, duration: 1.2, stagger: 0.1 }, 0.12);
-    tl.to(".intro__brand", { y: 0, opacity: 1, duration: 0.85 }, 0.4);
-    tl.to(".intro__lede", { y: 0, opacity: 1, duration: 0.85 }, 0.5);
-    tl.to(".intro__actions", { y: 0, opacity: 1, duration: 0.85 }, 0.6);
-    tl.to(".intro__bottom", { y: 0, opacity: 1, duration: 0.9 }, 0.72);
+    const titleAt = wantHero3d ? 1.85 : 0.8;
+    tl.to(".intro .clip__in", { yPercent: 0, duration: 1.2, stagger: 0.1 }, titleAt);
+    tl.to(".intro__brand", { y: 0, opacity: 1, duration: 0.85 }, titleAt + 0.28);
+    tl.to(".intro__lede", { y: 0, opacity: 1, duration: 0.85 }, titleAt + 0.38);
+    tl.to(".intro__actions", { y: 0, opacity: 1, duration: 0.85 }, titleAt + 0.48);
+    tl.to(".intro__bottom", { y: 0, opacity: 1, duration: 0.9 }, titleAt + 0.6);
+  }
+
+  function initIntroWebGL(items, hero3d, canvas) {
+    const intro = document.getElementById("intro");
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: false,
+      powerPreference: "high-performance",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x0a0a09, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.12;
+
+    const scene = new THREE.Scene();
+    scene.environment = createPourEnvMap(renderer);
+    scene.fog = new THREE.Fog(0x0a0a09, 8, 22);
+
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 40);
+    camera.position.set(0, 0.1, 0.72);
+    camera.lookAt(0, 0, 0);
+
+    scene.add(new THREE.AmbientLight(0xf3ede0, 0.22));
+    const key = new THREE.DirectionalLight(0xf3ede0, 2.4);
+    key.position.set(2.8, 4.2, 3.2);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x857f72, 0.45);
+    fill.position.set(-3.2, 0.6, 1.2);
+    scene.add(fill);
+    const rim = new THREE.PointLight(0xf3ede0, 10, 14, 2);
+    rim.position.set(-2.2, 1.6, 3.4);
+    scene.add(rim);
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    const neon = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xf3ede0,
+      emissiveIntensity: 0.55,
+      roughness: 0.18,
+      metalness: 0.35,
+      envMapIntensity: 0.4,
+    });
+    const metal = new THREE.MeshStandardMaterial({
+      color: 0x1a1a17,
+      roughness: 0.32,
+      metalness: 0.88,
+      envMapIntensity: 1,
+    });
+
+    const slabs = items.map((item, i) => {
+      const root = new THREE.Group();
+      const board = new THREE.Mesh(
+        new THREE.PlaneGeometry(3.2, 2.05),
+        new THREE.MeshPhysicalMaterial({
+          color: 0x22221e,
+          roughness: 0.38,
+          metalness: 0.12,
+          envMapIntensity: 0.7,
+          clearcoat: 0.4,
+          clearcoatRoughness: 0.35,
+        })
+      );
+      const bezel = new THREE.Mesh(new THREE.PlaneGeometry(3.34, 2.19), metal.clone());
+      bezel.position.z = -0.012;
+      const back = new THREE.Mesh(new THREE.PlaneGeometry(3.34, 2.19), metal.clone());
+      back.position.z = -0.02;
+      back.rotation.y = Math.PI;
+      root.add(bezel, back, board);
+      [
+        [3.34, 0.045, 0, 1.12, -0.006],
+        [3.34, 0.045, 0, -1.12, -0.006],
+        [0.045, 2.19, 1.67, 0, -0.006],
+        [0.045, 2.19, -1.67, 0, -0.006],
+      ].forEach(([w, h, x, y, z]) => {
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.04), neon.clone());
+        bar.position.set(x, y, z);
+        root.add(bar);
+      });
+      new THREE.TextureLoader().load(item.img, (tex) => {
+        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.anisotropy = 8;
+        board.material.map = tex;
+        board.material.color.set(0xffffff);
+        board.material.needsUpdate = true;
+      });
+      const slot = i - (items.length - 1) / 2;
+      root.userData = {
+        slot,
+        x: slot * 2.55,
+        y: slot === 0 ? 0.08 : -0.12,
+        z: Math.abs(slot) * -1.15,
+        rotY: slot * -0.42,
+      };
+      group.add(root);
+      return root;
+    });
+
+    const dustGeo = new THREE.BufferGeometry();
+    const n = 180;
+    const pos = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 12;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 6;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 8 - 1;
+    }
+    dustGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const dust = new THREE.Points(
+      dustGeo,
+      new THREE.PointsMaterial({
+        color: 0xf3ede0,
+        size: 0.016,
+        transparent: true,
+        opacity: 0.2,
+        depthWrite: false,
+      })
+    );
+    scene.add(dust);
+
+    const mx = { x: 0, y: 0 };
+    if (fine) {
+      window.addEventListener(
+        "pointermove",
+        (e) => {
+          mx.x = (e.clientX / window.innerWidth) * 2 - 1;
+          mx.y = (e.clientY / window.innerHeight) * 2 - 1;
+        },
+        { passive: true }
+      );
+    }
+
+    const cam = { z: 0.72, y: 0.1 };
+    if (hasGSAP) {
+      gsap.to(cam, {
+        z: 7.1,
+        y: 0.28,
+        duration: 2.35,
+        ease: "power3.inOut",
+        delay: 0.05,
+      });
+    } else {
+      cam.z = 7.1;
+      cam.y = 0.28;
+    }
+
+    const fit = () => {
+      const w = intro?.clientWidth || window.innerWidth;
+      const h = intro?.clientHeight || window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / Math.max(1, h);
+      camera.updateProjectionMatrix();
+    };
+    fit();
+    window.addEventListener("resize", fit);
+
+    let raf = 0;
+    const tick3d = () => {
+      raf = requestAnimationFrame(tick3d);
+      const t = performance.now() * 0.001;
+      const featured = hero3d.idx();
+      slabs.forEach((root, i) => {
+        const d = root.userData;
+        const on = i === featured;
+        const tx = d.x + (on ? 0 : d.slot * 0.12);
+        const ty = d.y + Math.sin(t * 0.7 + i) * 0.06;
+        const tz = on ? 0.85 : d.z;
+        const ts = on ? 1.08 : 0.78;
+        const ry = on ? 0 : d.rotY;
+        root.position.x += (tx - root.position.x) * 0.07;
+        root.position.y += (ty - root.position.y) * 0.07;
+        root.position.z += (tz - root.position.z) * 0.07;
+        root.scale.setScalar(root.scale.x + (ts - root.scale.x) * 0.07);
+        root.rotation.y += (ry - root.rotation.y) * 0.07;
+        root.rotation.x = Math.sin(t * 0.5 + i) * 0.03;
+      });
+      dust.rotation.y = t * 0.03;
+      const pull = hero3d.scroll * 1.8;
+      camera.position.z = cam.z + pull;
+      camera.position.y = cam.y + mx.y * -0.22 + hero3d.scroll * 0.35;
+      camera.position.x = mx.x * 0.55;
+      camera.lookAt(mx.x * 0.35, -0.05 + mx.y * -0.12, 0);
+      renderer.render(scene, camera);
+    };
+    tick3d();
   }
 
   // ——— Statement word light-up ———

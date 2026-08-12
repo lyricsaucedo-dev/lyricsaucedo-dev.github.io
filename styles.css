@@ -124,6 +124,12 @@ ul, ol { list-style: none; }
   transition: opacity 0.7s var(--ease), visibility 0.7s;
 }
 .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+body:has(.loader:not(.is-done)) .intro__center,
+body:has(.loader:not(.is-done)) .intro__lockup,
+body:has(.loader:not(.is-done)) .intro__bottom {
+  opacity: 0;
+  visibility: hidden;
+}
 .loader__stage { width: min(280px, 78vw); text-align: center; }
 .loader__logo {
   display: block;
@@ -419,6 +425,39 @@ ul, ol { list-style: none; }
   grid-template-columns: 1fr;
   padding: 6.5rem clamp(1.25rem, 3.5vw, 3rem) 1.75rem;
   overflow: hidden;
+}
+
+.intro__canvas {
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+body.intro-webgl .intro__canvas { display: block; }
+body.intro-webgl .intro__bg { display: none; }
+body.intro-webgl .intro__shade,
+body.intro-webgl .intro__vignette {
+  z-index: 1;
+  display: block;
+}
+body.intro-webgl .intro {
+  background: #0a0a09;
+}
+body.intro-webgl .intro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg,
+      rgba(10,10,9,0.55) 0%,
+      rgba(10,10,9,0.12) 38%,
+      rgba(10,10,9,0.2) 62%,
+      rgba(10,10,9,0.88) 100%),
+    radial-gradient(ellipse 80% 70% at 50% 48%, transparent 10%, rgba(10,10,9,0.45) 100%);
 }
 
 .intro__bg {
@@ -2056,6 +2095,7 @@ body.nav-open { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .loader { display: none; }
   .intro__shot.is-on { animation: none; transform: none; }
+  .intro__canvas { display: none !important; }
   .clip__in { transform: none !important; }
   .cap__frame { clip-path: none !important; }
   .cap__frame img { transform: none !important; }
