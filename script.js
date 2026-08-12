@@ -33,6 +33,44 @@
     initProgress();
     initEmail();
     initMobileNote();
+    initHireSticky();
+  }
+
+  function initHireSticky() {
+    const el = document.getElementById("hireSticky");
+    if (!el || reduced) return;
+
+    const show = () => el.classList.add("is-on");
+    const hide = () => el.classList.remove("is-on");
+
+    if (!hasGSAP || typeof ScrollTrigger === "undefined") {
+      // Fallback: show after a bit of scroll
+      addEventListener(
+        "scroll",
+        () => {
+          const past = window.scrollY > window.innerHeight * 1.2;
+          const contact = document.getElementById("contact");
+          const inContact =
+            contact && contact.getBoundingClientRect().top < window.innerHeight * 0.7;
+          el.classList.toggle("is-on", past && !inContact);
+        },
+        { passive: true }
+      );
+      return;
+    }
+
+    ScrollTrigger.create({
+      trigger: "#work",
+      start: "bottom 75%",
+      onEnter: show,
+      onLeaveBack: hide,
+    });
+    ScrollTrigger.create({
+      trigger: "#contact",
+      start: "top 72%",
+      onEnter: hide,
+      onLeaveBack: show,
+    });
   }
 
   function initMobileNote() {
@@ -739,7 +777,6 @@
       return;
     }
 
-    // Desktop / no WebGL: CSS cascade fallback
     const canWebGL = (() => {
       try {
         const c = document.createElement("canvas");
@@ -749,15 +786,30 @@
       }
     })();
 
-    if (typeof THREE === "undefined" || !canvas || !canWebGL) {
-      if (typeof THREE === "undefined" && !reduced) {
-        console.warn("[pour] THREE missing — using cascade fallback. Open in Chrome at http://127.0.0.1:5173");
+    const startDesktopPour = () => {
+      if (typeof THREE !== "undefined" && canvas && canWebGL) {
+        initPourWebGL(section, pin, canvas, projects, setHud, hint, hintFill);
+        if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
+        return;
       }
+      console.warn("[pour] THREE/WebGL unavailable — using cascade fallback.");
       initPourCascade(section, pin, projects, setHud, hint, hintFill);
-      return;
-    }
+      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
+    };
 
-    initPourWebGL(section, pin, canvas, projects, setHud, hint, hintFill);
+    // Three loads async via ES module; don't block the rest of the site on it
+    if (typeof THREE !== "undefined") {
+      startDesktopPour();
+    } else {
+      let started = false;
+      const go = () => {
+        if (started) return;
+        started = true;
+        startDesktopPour();
+      };
+      window.addEventListener("three-ready", go, { once: true });
+      setTimeout(go, 4000);
+    }
   }
 
   function initPourCascade(section, pin, projects, setHud, hint, hintFill) {
@@ -1003,6 +1055,32 @@
     }
     const lastRibT = ribs[ribs.length - 1].userData.t;
 
+    // Threshold ring — blooms at the mouth of the dark after the title clears
+    const thresholdMat = new THREE.MeshStandardMaterial({
+      color: 0xf3ede0,
+      metalness: 0.95,
+      roughness: 0.18,
+      envMap,
+      envMapIntensity: 1.4,
+      emissive: 0xf3ede0,
+      emissiveIntensity: 0.45,
+      transparent: true,
+      opacity: 0,
+    });
+    const thresholdRing = new THREE.Mesh(
+      new THREE.TorusGeometry(tubeRadius - 0.14, 0.028, 10, 64),
+      thresholdMat
+    );
+    {
+      const tp = curve.getPointAt(0.035);
+      const tt = curve.getTangentAt(0.035).normalize();
+      thresholdRing.position.copy(tp);
+      thresholdRing.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), tt);
+      thresholdRing.scale.setScalar(0.04);
+      thresholdRing.visible = false;
+      scene.add(thresholdRing);
+    }
+
     const dripGeo = new THREE.SphereGeometry(0.06, 10, 10);
     const dripMat = new THREE.MeshStandardMaterial({
       color: 0xf3ede0,
@@ -1053,6 +1131,8 @@
         emissiveIntensity: 0.28,
         envMap,
         envMapIntensity: 1.2,
+        transparent: true,
+        opacity: 1,
       })
     );
     mouthRing.position.copy(mouthPos);
@@ -1162,30 +1242,35 @@
 
     const setMouth = (amount) => {
       const a = Math.max(0, Math.min(1, amount));
+      // Soft ease so Work doesn't slam in
+      const ease = a * a * (3 - 2 * a);
 
       if (a < 0.01) {
         canvas.style.webkitMaskImage = "none";
         canvas.style.maskImage = "none";
+        pin.style.backgroundColor = "";
       } else {
-        const inn = a * 82;
-        const out = inn + Math.max(3, 9 - a * 6);
+        const inn = ease * 78;
+        const out = inn + Math.max(4, 12 - ease * 7);
         const grad = `radial-gradient(circle at 50% 46%, transparent ${inn}%, #000 ${out}%)`;
         canvas.style.webkitMaskImage = grad;
         canvas.style.maskImage = grad;
+        // Match Work section bg (--bg-2) as the mouth opens
+        pin.style.backgroundColor = "#121210";
       }
 
       if (work) {
-        work.style.opacity = a > 0.02 ? "1" : "0";
-        work.style.transform = `scale(${0.42 + a * 0.58})`;
-        work.style.pointerEvents = a > 0.95 ? "auto" : "none";
+        work.style.opacity = ease > 0.02 ? String(Math.min(1, ease * 1.15)) : "0";
+        work.style.transform = `scale(${0.5 + ease * 0.5})`;
+        work.style.pointerEvents = ease > 0.92 ? "auto" : "none";
       }
     };
 
     const applyIntro = (p) => {
-      // 0–0.08 hold title · 0.08–0.18 spy-kids fly-away · 0.12–0.22 cursor drop
-      if (!intro) return;
+      // 0–0.08 hold · 0.08–0.16 fly-away · then dark threshold before the ride
+      if (!intro) return { hold: 0, fly: 1 };
       const hold = Math.min(1, p / 0.08);
-      const fly = Math.max(0, Math.min(1, (p - 0.08) / 0.1));
+      const fly = Math.max(0, Math.min(1, (p - 0.08) / 0.08));
       intro.style.opacity = String(Math.max(0, 1 - fly * 1.15));
       if (introTitle) {
         const rotY = fly * 58;
@@ -1195,7 +1280,6 @@
         const y = fly * -40;
         introTitle.style.transform = `translate3d(${x}px, ${y}px, ${z}px) rotateY(${rotY}deg) rotateX(${rotX}deg)`;
       }
-      // Scrub-friendly both ways
       if (fly < 1) intro.style.visibility = "visible";
       else intro.style.visibility = "hidden";
       return { hold, fly };
@@ -1204,16 +1288,17 @@
     const applyProgress = (p) => {
       const { fly } = applyIntro(p);
 
-      // Tunnel travel starts after the title clears
-      const rideP = Math.max(0, (p - 0.16) / 0.84);
-      // Mouth only in the final stretch — Work IS the end, not a later scroll
+      // Dark beat after title · bloom threshold ring · then dive
+      const darkBeat = Math.max(0, Math.min(1, (p - 0.155) / 0.055));
+      const bloom = Math.max(0, Math.min(1, (p - 0.195) / 0.075));
+      const rideP = Math.max(0, (p - 0.24) / 0.76);
       const mouthAmt = rideP > 0.88 ? Math.min(1, (rideP - 0.88) / 0.12) : 0;
       const travelMax = lastRibT + 0.06;
       const travel = Math.min(travelMax, rideP * travelMax);
 
       if (rideP <= 0) {
         curve.getPointAt(0.001, camPos);
-        curve.getPointAt(0.06, camLook);
+        curve.getPointAt(0.05, camLook);
       } else if (travel <= 1) {
         curve.getPointAt(Math.min(0.999, Math.max(0.001, travel)), camPos);
         if (mouthAmt > 0) {
@@ -1250,12 +1335,10 @@
 
         boards.forEach((b) => {
           const d = b.userData.t - travelNow;
-          // Current = nearest around the "full" sweet spot
           if (d > -0.1 && d < 0.14 && Math.abs(d - 0.05) < Math.abs(curD - 0.05)) {
             cur = b;
             curD = d;
           }
-          // Next = soonest board still ahead in the gap
           if (d > 0.08 && d < nextD) {
             next = b;
             nextD = d;
@@ -1268,22 +1351,18 @@
             : 0;
 
         if (curFull > 0.35) {
-          // Full state — stay clear of THIS photo, don't start the next dodge yet
           const soft = curFull * curFull * (3 - 2 * curFull);
           dodgeSideT = -cur.userData.side * soft * 1.35;
           dodgeUpT = Math.sin(soft * Math.PI) * 0.14 * -cur.userData.side;
           focusSide = cur.userData.side;
           focusAmt = soft;
         } else if (next) {
-          // Gap after full view — begin a slow move to clear the upcoming photo
-          // nextD ~0.28 (far) → start · ~0.16 → full clear · hold into approach
           let ramp = 0;
           if (nextD >= 0.28) ramp = 0;
           else if (nextD > 0.16) ramp = (0.28 - nextD) / 0.12;
           else if (nextD > 0.08) ramp = 1;
           else ramp = Math.max(0, nextD / 0.08);
 
-          // Only commit once we've left the previous full beat
           const gapGate = 1 - Math.min(1, curFull / 0.35);
           ramp *= gapGate;
 
@@ -1294,7 +1373,6 @@
           focusAmt = soft;
         }
       }
-      // Very slow follow — glide across the gap, never a snap
       dodge.side += (dodgeSideT - dodge.side) * 0.018;
       dodge.up += (dodgeUpT - dodge.up) * 0.016;
       dodge.look += (dodgeSideT * 0.35 - dodge.look) * 0.02;
@@ -1312,25 +1390,47 @@
       camera.fov = 66 + mouthAmt * 8;
       camera.updateProjectionMatrix();
 
+      // Dark threshold beat — lights drop, then bloom back as the ring opens
+      const lightMul =
+        fly < 1 ? 0.35 : darkBeat > 0 && bloom < 0.35 ? 0.12 + bloom * 0.5 : 0.55 + bloom * 0.45;
+      headLight.intensity = 48 * lightMul * (1 - mouthAmt * 0.7);
+      rimLight.intensity = 28 * lightMul;
+      fill.intensity = 16 * lightMul;
       headLight.position.copy(camPos).addScaledVector(tang, 2.2);
       rimLight.position.copy(camPos).addScaledVector(tang, -2).addScaledVector(upV, 1.5);
       fill.position.copy(camPos).addScaledVector(sideV, 1.1).addScaledVector(upV, 0.35);
 
-      // Rings: invisible at first hit — fade in ahead once you're diving
-      const ringsOn = rideP > 0.06;
+      // Threshold bloom ring
+      if (bloom > 0.01 && bloom < 0.98 && rideP < 0.12) {
+        thresholdRing.visible = true;
+        const s = 0.08 + bloom * 0.92;
+        thresholdRing.scale.setScalar(s);
+        thresholdMat.opacity = bloom < 0.7 ? bloom * 1.2 : Math.max(0, 1 - (bloom - 0.7) / 0.3);
+        thresholdMat.emissiveIntensity = 0.35 + bloom * 0.4;
+      } else {
+        thresholdRing.visible = false;
+      }
+
+      // Rings after the threshold; fade out as the Work mouth opens
+      const ringsOn = rideP > 0.05;
+      const ringFade = 1 - mouthAmt;
       ribs.forEach((rib) => {
         const ahead = rib.userData.t - travel;
-        rib.visible = ringsOn && ahead > -0.01 && ahead < 0.42;
+        const show = ringsOn && ahead > -0.01 && ahead < 0.42 && ringFade > 0.04;
+        rib.visible = show;
+        rib.scale.setScalar(show ? Math.max(0.05, ringFade) : 1);
       });
-      mouthRing.visible = ringsOn && lastRibT - travel > -0.01;
+      mouthRing.visible = ringsOn && lastRibT - travel > -0.01 && ringFade > 0.04;
+      mouthRing.scale.setScalar(Math.max(0.05, ringFade));
+      if (mouthRing.material) mouthRing.material.opacity = ringFade;
 
       setMouth(mouthAmt);
 
-      // Cursor choreography (works both directions via scrubbed progress)
+      // Cursor choreography
       if (cursorCtl) {
         if (p < 0.1) {
           cursorCtl.setMode("follow");
-        } else if (p < 0.2) {
+        } else if (p < 0.22) {
           cursorCtl.setMode("drop");
           cursorCtl.setDrop(innerWidth * 0.5, innerHeight * 0.62);
         } else if (mouthAmt > 0.92) {
@@ -1341,13 +1441,11 @@
           cursorCtl.setMode("ride");
           const lookT = Math.min(0.999, travel + 0.1);
           curve.getPointAt(lookT, ridePt);
-          // Nudge in 3D with the dodge
           ridePt.addScaledVector(sideV, dodge.side * 1.6);
           ridePt.addScaledVector(upV, dodge.up * 1.2);
           ridePt.project(camera);
           let sx = (ridePt.x * 0.5 + 0.5) * pin.clientWidth;
           let sy = (-ridePt.y * 0.5 + 0.5) * pin.clientHeight;
-          // Extra screen clear — smoothed so it glides, not snaps
           if (dodge.clear > 0.04) {
             const clear = Math.min(1, dodge.clear * 1.2);
             sx += -dodge.clearSide * clear * pin.clientWidth * 0.32;
@@ -1361,7 +1459,8 @@
 
       let best = 0;
       let bestScore = Infinity;
-      const showBoards = rideP > 0.04 && mouthAmt < 0.55;
+      // Hold projects back until after the threshold bloom
+      const showBoards = rideP > 0.08 && mouthAmt < 0.55;
 
       boards.forEach((b, i) => {
         const d = b.userData.t - Math.min(1, travel);
@@ -1371,7 +1470,6 @@
           best = i;
         }
 
-        // Keep frames on the wall — lighter surge so the dodge reads
         const focus = showBoards ? Math.max(0, 1 - Math.abs(d - 0.06) * 5.2) : 0;
         const surge = focus * focus;
         tmp.copy(b.userData.home).lerp(b.userData.pathPoint, surge * 0.28);
@@ -1390,7 +1488,7 @@
       });
 
       setHud(best);
-      const inTunnel = rideP > 0.05 && mouthAmt < 0.4;
+      const inTunnel = rideP > 0.06 && mouthAmt < 0.4;
       if (hintFill) hintFill.style.height = `${Math.min(1, rideP / 0.88) * 100}%`;
       if (hint) {
         hint.style.opacity = inTunnel ? "1" : "0";
@@ -1398,8 +1496,10 @@
       }
       if (hud) hud.style.opacity = inTunnel ? "1" : "0";
 
-      canvas.style.opacity = "1";
-      canvas.style.pointerEvents = mouthAmt > 0.95 ? "none" : "auto";
+      // Soft canvas fade into Work (no hard cut)
+      const canvasFade = mouthAmt > 0.85 ? 1 - (mouthAmt - 0.85) / 0.15 : 1;
+      canvas.style.opacity = String(Math.max(0, canvasFade));
+      canvas.style.pointerEvents = mouthAmt > 0.92 ? "none" : "auto";
     };
 
     const resize = () => {
@@ -1531,8 +1631,44 @@
       return;
     }
 
-    // Mobile uses a static 2-column grid — no horizontal pin
-    if (mobile()) return;
+    // Mobile: 2-col grid with scrub scale / reveal (no tunnel, no horizontal pin)
+    if (mobile()) {
+      gsap.utils.toArray("#workRail .panel").forEach((panel) => {
+        gsap.fromTo(
+          panel,
+          { y: 36, opacity: 0, scale: 0.92 },
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 94%",
+              end: "top 58%",
+              scrub: 0.45,
+            },
+          }
+        );
+        const img = panel.querySelector("img");
+        if (!img) return;
+        gsap.fromTo(
+          img,
+          { scale: 1.14 },
+          {
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 92%",
+              end: "top 42%",
+              scrub: 0.5,
+            },
+          }
+        );
+      });
+      return;
+    }
 
     // Desktop + The Pour: visual gallery lives in WebGL; Work is a text index
     if (document.body.classList.contains("pour-webgl")) return;
@@ -1601,6 +1737,69 @@
     if (reduced) {
       document.querySelectorAll(".cap__frame").forEach((f) => f.classList.add("is-open"));
       return;
+    }
+
+    // The Rift — page splits, fall into cream eclipse, type builds, slam into Craft
+    const rift = document.getElementById("craftRift");
+    const riftPin = document.getElementById("riftPin");
+    const slabL = document.getElementById("riftSlabL");
+    const slabR = document.getElementById("riftSlabR");
+    const hair = document.getElementById("riftHair");
+    const sun = document.getElementById("riftSun");
+    const land = document.getElementById("riftLand");
+    const words = gsap.utils.toArray("#riftType span");
+    if (rift && riftPin && slabL && slabR) {
+      const isMob = mobile();
+      gsap.set(hair, { scaleY: 0, opacity: 1, transformOrigin: "top center" });
+      gsap.set(slabL, { xPercent: 0 });
+      gsap.set(slabR, { xPercent: 0 });
+      gsap.set(sun, { scale: 0.06, opacity: 0.4 });
+      gsap.set(words, { opacity: 0, y: "1.1em", rotateX: 70 });
+      gsap.set(land, { opacity: 0, y: 28 });
+
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: rift,
+          start: "top top",
+          end: () => (isMob ? "+=220%" : "+=240%"),
+          scrub: isMob ? 0.4 : 0.55,
+          pin: riftPin,
+          anticipatePin: 0,
+          invalidateOnRefresh: true,
+          pinType: lenis ? "transform" : "fixed",
+        },
+      });
+
+      // 1. Hairline cracks the page
+      tl.to(hair, { scaleY: 1, duration: 0.12 }, 0)
+        // 2. Slabs peel — you see the cream world in the wound
+        .to(slabL, { xPercent: -102, duration: 0.28 }, 0.1)
+        .to(slabR, { xPercent: 102, duration: 0.28 }, 0.1)
+        .to(hair, { opacity: 0, duration: 0.08 }, 0.18)
+        // 3. Fall in — sun blooms to a full eclipse field
+        .to(sun, { scale: 0.45, opacity: 1, duration: 0.12 }, 0.16)
+        .to(sun, { scale: 9.5, duration: 0.28 }, 0.28)
+        // 4. Type builds inside the cream
+        .to(
+          words,
+          {
+            opacity: 1,
+            y: 0,
+            rotateX: 0,
+            duration: 0.08,
+            stagger: 0.06,
+          },
+          0.42
+        )
+        // 5. Hold the sentence
+        .to({}, { duration: 0.1 }, 0.72)
+        // 6. Slam: type sinks, cream drains, Craft title lands on black
+        .to(words, { opacity: 0, y: "-0.6em", duration: 0.1 }, 0.8)
+        .to(sun, { scale: 0.01, opacity: 0, duration: 0.14 }, 0.82)
+        .to(land, { opacity: 1, y: 0, duration: 0.12 }, 0.86)
+        .to(slabL, { xPercent: 0, duration: 0.12 }, 0.86)
+        .to(slabR, { xPercent: 0, duration: 0.12 }, 0.86);
     }
 
     // Cap sections fade up (skip kinetic — it has its own pin scene)
@@ -1743,24 +1942,14 @@
     );
   }
 
-  // ——— Process ———
+  // ——— Process / atelier + stills ———
   function initProcess() {
-    if (!hasGSAP || typeof ScrollTrigger === "undefined" || reduced) return;
+    if (hasGSAP && typeof ScrollTrigger !== "undefined" && !reduced) {
+      if (mobile()) initBoards();
+      else initAtelier();
+    }
 
-    gsap.utils.toArray("[data-step]").forEach((el, i) => {
-      gsap.fromTo(
-        el,
-        { x: -30, opacity: 0 },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.85,
-          delay: i * 0.05,
-          ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 88%" },
-        }
-      );
-    });
+    if (!hasGSAP || typeof ScrollTrigger === "undefined" || reduced) return;
 
     gsap.fromTo(
       ".contact__title, .contact__lede, .contact .btn, .contact__email-row",
@@ -1774,6 +1963,506 @@
         scrollTrigger: { trigger: "#contact", start: "top 75%", toggleActions: "play none none none" },
       }
     );
+  }
+
+  function initBoards() {
+    const section = document.getElementById("boards");
+    const pin = document.getElementById("boardsPin");
+    const flash = document.getElementById("boardsFlash");
+    const shots = gsap.utils.toArray(".boards__shot");
+    const ticks = gsap.utils.toArray("#boardsTicks li");
+    if (!section || !pin || shots.length < 2) return;
+
+    const isMob = mobile();
+    const copies = shots.map((s) => s.querySelector(".boards__copy"));
+    let last = -1;
+
+    const show = (step, punched) => {
+      shots.forEach((s, i) => s.classList.toggle("is-on", i === step));
+      ticks.forEach((t, i) => t.classList.toggle("is-on", i === step));
+      if (!punched || step === last) return;
+      last = step;
+      if (flash) {
+        gsap.fromTo(
+          flash,
+          { opacity: 0.92 },
+          { opacity: 0, duration: 0.22, ease: "power2.out", overwrite: true }
+        );
+      }
+      if (copies[step]) {
+        gsap.fromTo(
+          copies[step],
+          { y: 36, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: "power3.out", overwrite: true }
+        );
+      }
+    };
+
+    show(0, false);
+    last = 0;
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: () => (isMob ? "+=220%" : "+=300%"),
+      pin: pin,
+      anticipatePin: 0,
+      invalidateOnRefresh: true,
+      pinType: lenis ? "transform" : "fixed",
+      onUpdate: (self) => {
+        const step = Math.min(shots.length - 1, Math.floor(self.progress * shots.length * 0.999));
+        show(step, true);
+      },
+    });
+  }
+
+  function initAtelier() {
+    const canvas = document.getElementById("atelierCanvas");
+    const section = document.getElementById("boards");
+    const pin = document.getElementById("boardsPin");
+    if (!canvas || !section || !pin) {
+      initBoards();
+      return;
+    }
+
+    const canWebGL = (() => {
+      try {
+        const c = document.createElement("canvas");
+        return !!(c.getContext("webgl2") || c.getContext("webgl"));
+      } catch {
+        return false;
+      }
+    })();
+
+    const start = () => {
+      if (typeof THREE !== "undefined" && canWebGL) {
+        initAtelierWebGL(section, pin, canvas);
+        if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
+        return;
+      }
+      initBoards();
+    };
+
+    if (typeof THREE !== "undefined") start();
+    else {
+      let started = false;
+      const go = () => {
+        if (started) return;
+        started = true;
+        start();
+      };
+      window.addEventListener("three-ready", go, { once: true });
+      setTimeout(go, 4000);
+    }
+  }
+
+  function initAtelierWebGL(section, pin, canvas) {
+    document.body.classList.add("atelier-webgl");
+    const hud = document.getElementById("atelierHud");
+    if (hud) hud.hidden = false;
+
+    const steps = [
+      {
+        num: "01",
+        eye: "03 — Process",
+        title: "Discover",
+        lede: "Brand, audience, offers, constraints. We define what “done” is before a single pixel moves.",
+      },
+      {
+        num: "02",
+        eye: "Art direction",
+        title: "Direction",
+        lede: "Type, color, motion language. A system that feels like the brand — not a theme.",
+      },
+      {
+        num: "03",
+        eye: "Build",
+        title: "Build",
+        lede: "Pixel-precise front-end. Shopify when it needs to sell. Performance watched like a hawk.",
+      },
+      {
+        num: "04",
+        eye: "Launch",
+        title: "Ship it.",
+        lede: "Train, hand over, stay on call for the next drop.",
+      },
+    ];
+    const eyeEl = document.getElementById("atelierEyebrow");
+    const numEl = document.getElementById("atelierNum");
+    const titleEl = document.getElementById("atelierTitle");
+    const ledeEl = document.getElementById("atelierLede");
+    const ticks = [...document.querySelectorAll("#boardsTicks li")];
+    let lastStep = -1;
+    const setHud = (i) => {
+      const s = steps[i];
+      if (!s) return;
+      ticks.forEach((t, n) => t.classList.toggle("is-on", n === i));
+      if (i === lastStep) return;
+      lastStep = i;
+      if (eyeEl) eyeEl.textContent = s.eye;
+      if (numEl) numEl.textContent = s.num;
+      if (titleEl) titleEl.textContent = s.title;
+      if (ledeEl) ledeEl.textContent = s.lede;
+      if (hud) {
+        gsap.fromTo(
+          hud,
+          { y: 28, opacity: 0.2 },
+          { y: 0, opacity: 1, duration: 0.45, ease: "power3.out", overwrite: true }
+        );
+      }
+    };
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x0a0a09, 1);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    const envMap = createPourEnvMap(renderer);
+    scene.environment = envMap;
+    scene.fog = new THREE.Fog(0x0a0a09, 7, 18);
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.05, 40);
+    camera.position.set(0, 0.55, 6.2);
+    const state = { progress: 0, mx: 0, my: 0 };
+
+    const key = new THREE.DirectionalLight(0xf3ede0, 2.1);
+    key.position.set(3.2, 5.4, 2.4);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.camera.near = 1;
+    key.shadow.camera.far = 16;
+    scene.add(key);
+    scene.add(new THREE.DirectionalLight(0x857f72, 0.55).translateX(-4).translateY(1.2).translateZ(-2));
+    scene.add(new THREE.AmbientLight(0xf3ede0, 0.18));
+    const rim = new THREE.PointLight(0xf3ede0, 8, 12, 2);
+    rim.position.set(-1.6, 1.8, 3.2);
+    scene.add(rim);
+
+    const plinth = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.55, 1.65, 0.07, 64),
+      new THREE.MeshStandardMaterial({
+        color: 0x121210,
+        roughness: 0.35,
+        metalness: 0.45,
+        envMapIntensity: 0.8,
+      })
+    );
+    plinth.position.y = -1.12;
+    plinth.receiveShadow = true;
+    scene.add(plinth);
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(1.58, 0.012, 8, 80),
+      new THREE.MeshStandardMaterial({ color: 0xf3ede0, roughness: 0.25, metalness: 0.7 })
+    );
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = -1.08;
+    scene.add(ring);
+
+    const cream = new THREE.MeshPhysicalMaterial({
+      color: 0xf3ede0,
+      roughness: 0.42,
+      metalness: 0.08,
+      envMapIntensity: 1,
+      clearcoat: 0.25,
+      clearcoatRoughness: 0.5,
+    });
+    const creamDark = cream.clone();
+    creamDark.color.set(0xc8c0b0);
+    const metal = new THREE.MeshStandardMaterial({
+      color: 0x2a2a26,
+      roughness: 0.28,
+      metalness: 0.92,
+      envMapIntensity: 1.2,
+    });
+
+    const discover = new THREE.Group();
+    const sheets = [];
+    for (let i = 0; i < 11; i++) {
+      const mat = i % 3 === 0 ? creamDark.clone() : cream.clone();
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.018, 1.05), mat);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      const chaos = new THREE.Vector3(
+        (Math.random() - 0.5) * 2.6,
+        (Math.random() - 0.4) * 1.8,
+        (Math.random() - 0.5) * 1.8
+      );
+      const stack = new THREE.Vector3(0, -0.55 + i * 0.028, 0);
+      sheets.push({
+        mesh,
+        chaos,
+        stack,
+        fan: ((i - 5) / 5) * 0.55,
+        spin: (Math.random() - 0.5) * 0.8,
+      });
+      discover.add(mesh);
+    }
+    scene.add(discover);
+
+    const direction = new THREE.Group();
+    const aShape = new THREE.Shape();
+    aShape.moveTo(0.04, 0);
+    aShape.lineTo(0.26, 0);
+    aShape.lineTo(0.4, 0.58);
+    aShape.lineTo(0.6, 0.58);
+    aShape.lineTo(0.74, 0);
+    aShape.lineTo(0.96, 0);
+    aShape.lineTo(0.58, 1.32);
+    aShape.lineTo(0.42, 1.32);
+    aShape.closePath();
+    const aHole = new THREE.Path();
+    aHole.moveTo(0.42, 0.74);
+    aHole.lineTo(0.5, 1.08);
+    aHole.lineTo(0.58, 0.74);
+    aHole.closePath();
+    aShape.holes.push(aHole);
+    const aGeo = new THREE.ExtrudeGeometry(aShape, {
+      depth: 0.28,
+      bevelEnabled: true,
+      bevelThickness: 0.035,
+      bevelSize: 0.022,
+      bevelSegments: 2,
+    });
+    aGeo.center();
+    const aMesh = new THREE.Mesh(aGeo, cream.clone());
+    aMesh.castShadow = true;
+    aMesh.material.transparent = true;
+    const aWire = new THREE.LineSegments(
+      new THREE.EdgesGeometry(aGeo, 18),
+      new THREE.LineBasicMaterial({ color: 0xf3ede0, transparent: true })
+    );
+    direction.add(aMesh, aWire);
+    direction.scale.setScalar(1.55);
+    scene.add(direction);
+
+    const build = new THREE.Group();
+    const voxels = [];
+    const cols = 7;
+    const rows = 5;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const cell = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.06), metal.clone());
+        cell.castShadow = true;
+        const tx = (x - (cols - 1) / 2) * 0.32;
+        const ty = (y - (rows - 1) / 2) * 0.32;
+        voxels.push({
+          mesh: cell,
+          home: new THREE.Vector3(tx, ty, 0),
+          scatter: new THREE.Vector3(
+            tx + (Math.random() - 0.5) * 3.2,
+            ty + (Math.random() - 0.5) * 2.4,
+            (Math.random() - 0.5) * 2.8
+          ),
+        });
+        build.add(cell);
+      }
+    }
+    const frame = new THREE.Group();
+    const bezel = (w, h, x, y) => {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.08), cream.clone());
+      m.position.set(x, y, 0.02);
+      m.castShadow = true;
+      frame.add(m);
+    };
+    bezel(2.55, 0.08, 0, 0.92);
+    bezel(2.55, 0.08, 0, -0.92);
+    bezel(0.08, 1.92, -1.24, 0);
+    bezel(0.08, 1.92, 1.24, 0);
+    build.add(frame);
+    const screen = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.28, 1.62),
+      new THREE.MeshBasicMaterial({ color: 0x111110, transparent: true, opacity: 0 })
+    );
+    screen.position.z = 0.05;
+    build.add(screen);
+    new THREE.TextureLoader().load("assets/jessesparks.png", (tex) => {
+      tex.colorSpace = THREE.SRGBColorSpace;
+      screen.material.map = tex;
+      screen.material.color.set(0xffffff);
+      screen.material.needsUpdate = true;
+    });
+    scene.add(build);
+
+    const ship = new THREE.Group();
+    const hullMat = cream.clone();
+    hullMat.transparent = true;
+    const hull = new THREE.Mesh(
+      new THREE.CapsuleGeometry(0.42, 1.15, 8, 24),
+      hullMat
+    );
+    hull.castShadow = true;
+    hull.rotation.z = Math.PI / 2;
+    const bandMat = metal.clone();
+    bandMat.transparent = true;
+    const band = new THREE.Mesh(
+      new THREE.TorusGeometry(0.44, 0.045, 8, 32),
+      bandMat
+    );
+    band.rotation.y = Math.PI / 2;
+    const sealMat = metal.clone();
+    sealMat.transparent = true;
+    const seal = new THREE.Mesh(new THREE.SphereGeometry(0.12, 20, 16), sealMat);
+    seal.position.set(0.62, 0.08, 0.28);
+    ship.add(hull, band, seal);
+    scene.add(ship);
+
+    const dustGeo = new THREE.BufferGeometry();
+    const dustCount = 220;
+    const dustPos = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount; i++) {
+      dustPos[i * 3] = (Math.random() - 0.5) * 8;
+      dustPos[i * 3 + 1] = (Math.random() - 0.5) * 4;
+      dustPos[i * 3 + 2] = (Math.random() - 0.5) * 6;
+    }
+    dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+    const dust = new THREE.Points(
+      dustGeo,
+      new THREE.PointsMaterial({
+        color: 0xf3ede0,
+        size: 0.018,
+        transparent: true,
+        opacity: 0.22,
+        depthWrite: false,
+      })
+    );
+    scene.add(dust);
+
+    const smooth = (a, b, t) => {
+      const x = Math.max(0, Math.min(1, (t - a) / (b - a)));
+      return x * x * (3 - 2 * x);
+    };
+    const actWeight = (p, a, b) => {
+      const fade = 0.05;
+      if (p <= a - fade || p >= b + fade) return 0;
+      if (p < a) return smooth(a - fade, a, p);
+      if (p > b) return 1 - smooth(b, b + fade, p);
+      return 1;
+    };
+
+    const apply = (p) => {
+      const w0 = actWeight(p, 0, 0.23);
+      const w1 = actWeight(p, 0.23, 0.48);
+      const w2 = actWeight(p, 0.48, 0.72);
+      const w3 = actWeight(p, 0.72, 1);
+      const local0 = smooth(0, 0.23, p);
+      const local1 = smooth(0.23, 0.48, p);
+      const local2 = smooth(0.48, 0.72, p);
+      const local3 = smooth(0.72, 1, p);
+
+      discover.visible = w0 > 0.01;
+      direction.visible = w1 > 0.01;
+      build.visible = w2 > 0.01;
+      ship.visible = w3 > 0.01;
+      discover.scale.setScalar(0.2 + w0 * 0.8);
+      direction.scale.setScalar((0.2 + w1 * 0.8) * 1.55);
+      build.scale.setScalar(0.2 + w2 * 0.8);
+      const launch = smooth(0.82, 1, p);
+      ship.scale.setScalar((0.2 + w3 * 0.8) * (1 + launch * 2.4));
+      ship.position.z = launch * 5.2;
+      ship.rotation.y = local3 * Math.PI * 1.4;
+      ship.traverse((o) => {
+        if (o.material && o.material.transparent !== undefined && o !== dust) {
+          o.material.transparent = true;
+          o.material.opacity = Math.max(0, 1 - launch * 1.15);
+        }
+      });
+
+      const gather = smooth(0.12, 0.55, local0);
+      const fan = smooth(0.55, 0.95, local0);
+      sheets.forEach((s, i) => {
+        s.mesh.position.lerpVectors(s.chaos, s.stack, gather);
+        s.mesh.position.x += Math.sin(fan * Math.PI) * s.fan * 1.15;
+        s.mesh.rotation.set(
+          (1 - gather) * s.spin,
+          fan * s.fan * 0.9,
+          (1 - gather) * s.spin * 0.4
+        );
+      });
+
+      aMesh.material.opacity = 0.12 + local1 * 0.88;
+      aWire.material.opacity = 1 - local1 * 0.55;
+      direction.rotation.y = -0.35 + local1 * 1.25;
+      direction.rotation.x = Math.sin(local1 * Math.PI) * 0.08;
+
+      voxels.forEach((v) => {
+        v.mesh.position.lerpVectors(v.scatter, v.home, smooth(0.08, 0.72, local2));
+        v.mesh.rotation.set(
+          (1 - local2) * 1.2,
+          (1 - local2) * 1.6,
+          0
+        );
+      });
+      frame.scale.setScalar(0.15 + smooth(0.35, 0.75, local2) * 0.85);
+      screen.material.opacity = smooth(0.55, 0.9, local2);
+
+      const weights = [w0, w1, w2, w3];
+      let step = 0;
+      let best = -1;
+      weights.forEach((w, i) => {
+        if (w > best) {
+          best = w;
+          step = i;
+        }
+      });
+      setHud(step);
+    };
+
+    apply(0);
+    setHud(0);
+
+    const fit = () => {
+      const w = pin.clientWidth || window.innerWidth;
+      const h = pin.clientHeight || window.innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / Math.max(1, h);
+      camera.updateProjectionMatrix();
+    };
+    fit();
+
+    ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: "+=340%",
+      scrub: 0.55,
+      pin: pin,
+      anticipatePin: 0,
+      invalidateOnRefresh: true,
+      pinType: lenis ? "transform" : "fixed",
+      onUpdate: (self) => {
+        state.progress = self.progress;
+        apply(self.progress);
+      },
+    });
+
+    const onMove = (e) => {
+      state.mx = (e.clientX / window.innerWidth) * 2 - 1;
+      state.my = (e.clientY / window.innerHeight) * 2 - 1;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("resize", fit);
+
+    let raf = 0;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
+      const t = performance.now() * 0.001;
+      dust.rotation.y = t * 0.02;
+      plinth.rotation.y = t * 0.08;
+      camera.position.x += (state.mx * 0.42 - camera.position.x) * 0.06;
+      camera.position.y += (0.48 + state.my * -0.18 - camera.position.y) * 0.06;
+      camera.lookAt(0, 0.05, 0);
+      renderer.render(scene, camera);
+    };
+    tick();
   }
 
   // ——— Progress ———

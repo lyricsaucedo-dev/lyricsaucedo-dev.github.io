@@ -8,9 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=pour14" />
+  <link rel="stylesheet" href="styles.css?v=atelier1" />
 </head>
 <body>
+  <a href="#contact" class="hire-sticky" id="hireSticky" data-hover="link">Start a project</a>
+
   <div class="mobile-note" id="mobileNote" hidden>
     <div class="mobile-note__card" role="dialog" aria-labelledby="mobileNoteTitle" aria-modal="true">
       <p id="mobileNoteTitle">Mobile optimization is in progress. We apologize for any bugs.</p>
@@ -335,14 +337,32 @@
       </ul>
     </section>
 
-    <!-- CRAFT — capability demos -->
+    <!-- CRAFT — opens with The Rift (full eclipse setpiece) -->
     <section class="craft" id="craft">
-      <div class="craft__intro">
-        <span class="eyebrow">02 — Capabilities</span>
-        <h2 class="craft__title">
-          This page is the pitch.<br />
-          <em>Every effect is intentional.</em>
-        </h2>
+      <div class="rift" id="craftRift" aria-label="The rift">
+        <div class="rift__pin" id="riftPin">
+          <div class="rift__core" id="riftCore" aria-hidden="true">
+            <div class="rift__sun" id="riftSun"></div>
+            <p class="rift__type" id="riftType">
+              <span>Every</span>
+              <span>effect</span>
+              <span>is</span>
+              <span>intentional.</span>
+            </p>
+          </div>
+
+          <div class="rift__land" id="riftLand">
+            <span class="eyebrow">02 — Capabilities</span>
+            <h2 class="craft__title">
+              This page is the pitch.<br />
+              <em>Every effect is intentional.</em>
+            </h2>
+          </div>
+
+          <div class="rift__slab rift__slab--l" id="riftSlabL"></div>
+          <div class="rift__slab rift__slab--r" id="riftSlabR"></div>
+          <span class="rift__hair" id="riftHair" aria-hidden="true"></span>
+        </div>
       </div>
 
       <div class="cap cap--type" data-cap="type">
@@ -424,42 +444,70 @@
       </div>
     </section>
 
-    <!-- PROCESS -->
+    <!-- PROCESS — desktop 3D atelier / mobile stills -->
     <section class="process" id="process">
-      <div class="process__head">
-        <span class="eyebrow">03 — Process</span>
-        <h2>From brief to something clients brag about.</h2>
+      <div class="boards" id="boards">
+        <div class="boards__pin" id="boardsPin">
+          <canvas class="atelier__canvas" id="atelierCanvas" aria-hidden="true"></canvas>
+          <div class="atelier__hud" id="atelierHud" hidden>
+            <span class="eyebrow" id="atelierEyebrow">03 — Process</span>
+            <em id="atelierNum">01</em>
+            <h2 id="atelierTitle">Discover</h2>
+            <p id="atelierLede">Brand, audience, offers, constraints. We define what “done” is before a single pixel moves.</p>
+          </div>
+          <article class="boards__shot is-on" data-shot="0">
+            <img src="assets/process/discover.webp" alt="Research desk: printouts, phone, pencils under a cream light." width="1920" height="1080" />
+            <div class="boards__veil" aria-hidden="true"></div>
+            <div class="boards__copy">
+              <span class="eyebrow">03 — Process</span>
+              <em>01</em>
+              <h2>Discover</h2>
+              <p>Brand, audience, offers, constraints. We define what “done” is before a single pixel moves.</p>
+            </div>
+          </article>
+
+          <article class="boards__shot" data-shot="1">
+            <img src="assets/process/direction.webp" alt="Studio wall: type specimens, color chips, layout grids." width="1920" height="1080" />
+            <div class="boards__veil" aria-hidden="true"></div>
+            <div class="boards__copy">
+              <span class="eyebrow">Art direction</span>
+              <em>02</em>
+              <h2>Direction</h2>
+              <p>Type, color, motion language. A system that feels like the brand — not a theme.</p>
+            </div>
+          </article>
+
+          <article class="boards__shot" data-shot="2">
+            <img src="assets/process/build.webp" alt="Dark studio monitor with a luxury site in progress." width="1920" height="1080" />
+            <div class="boards__veil" aria-hidden="true"></div>
+            <div class="boards__copy">
+              <span class="eyebrow">Build</span>
+              <em>03</em>
+              <h2>Build</h2>
+              <p>Pixel-precise front-end. Shopify when it needs to sell. Performance watched like a hawk.</p>
+            </div>
+          </article>
+
+          <article class="boards__shot" data-shot="3">
+            <img src="assets/process/ship.webp" alt="Night of launch: finished site glowing on a monitor." width="1920" height="1080" />
+            <div class="boards__veil" aria-hidden="true"></div>
+            <div class="boards__copy">
+              <span class="eyebrow">Launch</span>
+              <em>04</em>
+              <h2>Ship it.</h2>
+              <p>Train, hand over, stay on call for the next drop.</p>
+            </div>
+          </article>
+
+          <div class="boards__flash" id="boardsFlash" aria-hidden="true"></div>
+          <ol class="boards__ticks" id="boardsTicks" aria-hidden="true">
+            <li class="is-on">01</li>
+            <li>02</li>
+            <li>03</li>
+            <li>04</li>
+          </ol>
+        </div>
       </div>
-      <ol class="process__list">
-        <li class="process__item" data-step>
-          <span class="process__num">01</span>
-          <div>
-            <h3>Discover</h3>
-            <p>Brand, audience, offers, constraints — we define what “done” looks like before design starts.</p>
-          </div>
-        </li>
-        <li class="process__item" data-step>
-          <span class="process__num">02</span>
-          <div>
-            <h3>Art direction</h3>
-            <p>Type, color, motion language, and layout systems that feel like your brand — not a template.</p>
-          </div>
-        </li>
-        <li class="process__item" data-step>
-          <span class="process__num">03</span>
-          <div>
-            <h3>Build</h3>
-            <p>Pixel-precise front-end, Shopify when needed, performance obsessively watched.</p>
-          </div>
-        </li>
-        <li class="process__item" data-step>
-          <span class="process__num">04</span>
-          <div>
-            <h3>Launch</h3>
-            <p>Ship, train, hand over — and stay available when the next drop hits.</p>
-          </div>
-        </li>
-      </ol>
     </section>
 
     <!-- CONTACT -->
@@ -512,20 +560,18 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
-  <!-- ES module Three avoids CSP 'unsafe-eval' issues with some browsers/previews -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
-    }
-  }
-  </script>
+  <!-- Site JS always loads — do not gate it behind Three (CSP/previews can block eval-ish CDN paths) -->
+  <script defer src="script.js?v=atelier1"></script>
+  <!-- Three as a pure ES module (no UMD eval). Pour listens for three-ready. -->
   <script type="module">
-    import * as THREE from "three";
-    window.THREE = THREE;
-    const s = document.createElement("script");
-    s.src = "script.js?v=pour14";
-    document.body.appendChild(s);
+    try {
+      const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
+      window.THREE = THREE;
+      document.documentElement.classList.add("has-three");
+    } catch (err) {
+      console.warn("[pour] Three.js failed to load — cascade/grid fallback only.", err);
+    }
+    window.dispatchEvent(new Event("three-ready"));
   </script>
 </body>
 </html>
