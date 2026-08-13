@@ -9,6 +9,79 @@
   const mobile = () => !desktop();
   const hasGSAP = typeof gsap !== "undefined";
   const hasLenis = typeof Lenis !== "undefined";
+  const pageHidden = () => document.visibilityState === "hidden";
+  const gpuDpr = () => Math.min(window.devicePixelRatio || 1, 1.5);
+
+  const watchView = (el, onChange) => {
+    let inView = !el;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      inView = r.bottom > 0 && r.top < (window.innerHeight || 1);
+    }
+    const emit = () => onChange(inView && !pageHidden());
+    if (el && typeof IntersectionObserver !== "undefined") {
+      const io = new IntersectionObserver(
+        (entries) => {
+          inView = entries.some((e) => e.isIntersecting);
+          emit();
+        },
+        { root: null, rootMargin: "18% 0px", threshold: 0 }
+      );
+      io.observe(el);
+    } else {
+      inView = true;
+    }
+    document.addEventListener("visibilitychange", emit);
+    emit();
+  };
+
+  const onceNear = (el, margin, fn) => {
+    if (!el || typeof IntersectionObserver === "undefined") {
+      fn();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        fn();
+      },
+      { root: null, rootMargin: margin, threshold: 0 }
+    );
+    io.observe(el);
+  };
+
+  const runWhileVisible = (el, frame) => {
+    let raf = 0;
+    let live = false;
+    const step = () => {
+      if (!live) {
+        raf = 0;
+        return;
+      }
+      raf = requestAnimationFrame(step);
+      frame();
+    };
+    watchView(el, (on) => {
+      live = on;
+      if (on && !raf) raf = requestAnimationFrame(step);
+    });
+  };
+
+  const makeGL = (canvas, extra = {}) => {
+    const dpr = gpuDpr();
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: dpr < 1.4,
+      powerPreference: "high-performance",
+      stencil: false,
+      depth: true,
+      ...extra,
+    });
+    renderer.setPixelRatio(dpr);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    return renderer;
+  };
 
   if (hasGSAP && typeof ScrollTrigger !== "undefined") {
     gsap.registerPlugin(ScrollTrigger);
@@ -35,6 +108,7 @@
     initMobileNote();
     initHireSticky();
     initShowreel();
+    initIdleMedia();
   }
 
   function initHireSticky() {
@@ -507,6 +581,8 @@
     };
 
     const loop = () => {
+      requestAnimationFrame(loop);
+      if (pageHidden() || document.body.classList.contains("is-playing")) return;
       time += 0.016;
       let tx = mx;
       let ty = my;
@@ -599,8 +675,6 @@
         place(tail, origin + tailX, origin + tailY, moveAngle, 1 + stretch * 0.35, 1 - stretch * 0.18);
         if (text) text.style.transform = `translate3d(${m.x}px,${m.y}px,0) translate(-50%,-50%)`;
       }
-
-      requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
   }
@@ -713,15 +787,20 @@
     }
 
     apply(0);
+    let introOn = true;
+    watchView(document.getElementById("intro"), (on) => {
+      introOn = on;
+    });
     const tick = (now) => {
+      requestAnimationFrame(tick);
       const dt = now - last;
       last = now;
+      if (!introOn || pageHidden()) return;
       if (!paused && !reduced) {
         elapsed += dt;
         if (elapsed >= DUR) go((idx + 1) % items.length);
         else setP(elapsed / DUR);
       }
-      requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
 
@@ -795,15 +874,8 @@
 
   function initIntroWebGL(items, hero3d, canvas) {
     const intro = document.getElementById("intro");
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: false,
-      powerPreference: "high-performance",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    const renderer = makeGL(canvas, { alpha: false });
     renderer.setClearColor(0x0a0a09, 1);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.02;
 
@@ -946,8 +1018,9 @@
     items.forEach((item, i) => {
       texLoader.load(item.img, (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
-        tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+        tex.generateMipmaps = false;
         tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
         tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
         maps[i] = tex;
         if (tex.image && tex.image.width) {
@@ -1017,8 +1090,7 @@
     window.addEventListener("resize", fit);
 
     let lastFeat = 0;
-    const tick3d = () => {
-      requestAnimationFrame(tick3d);
+    runWhileVisible(intro, () => {
       const t = performance.now() * 0.001;
       const scroll = hero3d.scroll;
       look.x += (mx.x - look.x) * 0.055;
@@ -1060,8 +1132,7 @@
       screen.rotation.x = look.y * -0.045;
 
       renderer.render(scene, camera);
-    };
-    tick3d();
+    });
   }
 
   // ——— Statement word light-up ———
@@ -1365,15 +1436,8 @@
       parkWork();
     }
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    const renderer = makeGL(canvas, { alpha: true });
     renderer.setClearColor(0x0a0a09, 1);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
 
@@ -1561,11 +1625,13 @@
 
     const bindScreenMap = (screenMat, tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
-      tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      tex.generateMipmaps = false;
+      tex.minFilter = THREE.LinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
       screenMat.map = tex;
       screenMat.color.set(0xffffff);
       screenMat.needsUpdate = true;
-      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
     };
 
     const loadAnimatedMap = (url, screenMat) => {
@@ -1573,12 +1639,19 @@
       img.decoding = "async";
       img.src = url;
       const paint = document.createElement("canvas");
-      const ctx = paint.getContext("2d", { alpha: false });
+      const ctx = paint.getContext("2d", { alpha: false, willReadFrequently: false });
       const ready = () => {
         if (!img.naturalWidth) return;
-        paint.width = img.naturalWidth;
-        paint.height = img.naturalHeight;
-        ctx.drawImage(img, 0, 0);
+        const MAX = 1280;
+        let w = img.naturalWidth;
+        let h = img.naturalHeight;
+        if (w > MAX) {
+          h = Math.round((h * MAX) / w);
+          w = MAX;
+        }
+        paint.width = w;
+        paint.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
         const tex = new THREE.CanvasTexture(paint);
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.minFilter = THREE.LinearFilter;
@@ -1947,27 +2020,24 @@
     resize();
     addEventListener("resize", resize);
 
-    const render = () => renderer.render(scene, camera);
+    let lastGpu = 0;
+    const render = () => {
+      renderer.render(scene, camera);
+      lastGpu = performance.now();
+    };
     applyProgress(0);
     render();
 
-    let liveRaf = 0;
-    const liveLoop = () => {
-      liveRaf = requestAnimationFrame(liveLoop);
+    runWhileVisible(pin, () => {
+      if (canvas.style.opacity === "0") return;
       if (!liveTextures.length) return;
-      // Keep GIF/WebP frames moving even when scroll is idle
       liveTextures.forEach(({ img, ctx, paint, tex }) => {
         if (!img.complete || !img.naturalWidth) return;
-        if (paint.width !== img.naturalWidth || paint.height !== img.naturalHeight) {
-          paint.width = img.naturalWidth;
-          paint.height = img.naturalHeight;
-        }
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, paint.width, paint.height);
         tex.needsUpdate = true;
       });
-      render();
-    };
-    liveLoop();
+      if (performance.now() - lastGpu > 14) render();
+    });
 
     let lastP = 0;
 
@@ -2032,11 +2102,10 @@
         },
       });
     } else {
-      const loop = () => {
+      runWhileVisible(pin, () => {
+        applyProgress(state.progress);
         render();
-        requestAnimationFrame(loop);
-      };
-      requestAnimationFrame(loop);
+      });
     }
 
     const raycaster = new THREE.Raycaster();
@@ -2586,15 +2655,8 @@
       }
     };
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas,
-      antialias: true,
-      alpha: false,
-      powerPreference: "high-performance",
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    const renderer = makeGL(canvas, { alpha: false });
     renderer.setClearColor(0x050504, 1);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.04;
 
@@ -2632,6 +2694,7 @@
     });
     const shards = [];
     const tmp = new THREE.Vector3();
+    const pendingWorkMaps = [];
 
     for (let i = 0; i < 12; i++) {
       const isPaper = i >= 8;
@@ -2687,19 +2750,27 @@
         im.onload = () => {
           const tex = new THREE.Texture(im);
           tex.colorSpace = THREE.SRGBColorSpace;
+          tex.generateMipmaps = false;
           tex.minFilter = THREE.LinearFilter;
+          tex.magFilter = THREE.LinearFilter;
           tex.needsUpdate = true;
           mat.map = tex;
           mat.color.set(0xffffff);
           mat.needsUpdate = true;
           state.siteDirty = true;
         };
-        im.src = item.src;
+        pendingWorkMaps.push({ im, src: item.src });
       }
       mesh.position.copy(chaos);
       scene.add(mesh);
       shards.push({ mesh, chaos, board, sink, spin, isPaper });
     }
+    const kickWorkMaps = () => {
+      pendingWorkMaps.forEach(({ im, src }) => {
+        if (!im.src) im.src = src;
+      });
+    };
+    onceNear(section, "140% 0px", kickWorkMaps);
 
     const siteW = 1280;
     const siteH = 720;
@@ -3166,7 +3237,7 @@
               next.transparent = true;
               next.opacity = smoke ? 0 : 1;
               next.depthWrite = !smoke;
-              next.side = THREE.DoubleSide;
+              next.side = smoke ? THREE.DoubleSide : THREE.FrontSide;
               return next;
             });
             obj.material = multi ? cloned : cloned[0];
@@ -3207,19 +3278,30 @@
           smokeMeshes.forEach((m) => smokePad.attach(m));
           flame.position.set(0, (box.min.y - center.y) * fitS - 0.04, 0);
           engineLight.position.set(0, flame.position.y + 0.08, 0.12);
+          renderer.compile(scene, camera);
           apply(state.progress);
         },
         undefined,
         (err) => console.warn("[process] rocket.glb failed", err)
       );
     };
-    const Loader = window.THREE_ADDONS && window.THREE_ADDONS.GLTFLoader;
-    if (Loader) mountRocket(Loader);
-    else {
-      import("https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js")
-        .then((m) => mountRocket(m.GLTFLoader))
-        .catch((err) => console.warn("[process] GLTFLoader import failed", err));
-    }
+    let rocketAsked = false;
+    const askRocket = () => {
+      if (rocketAsked) return;
+      rocketAsked = true;
+      const Loader = window.THREE_ADDONS && window.THREE_ADDONS.GLTFLoader;
+      if (Loader) mountRocket(Loader);
+      else {
+        import("https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js")
+          .then((m) => {
+            window.THREE_ADDONS = window.THREE_ADDONS || {};
+            window.THREE_ADDONS.GLTFLoader = m.GLTFLoader;
+            mountRocket(m.GLTFLoader);
+          })
+          .catch((err) => console.warn("[process] GLTFLoader import failed", err));
+      }
+    };
+    onceNear(section, "160% 0px", askRocket);
 
     const fit = () => {
       const w = pin.clientWidth || window.innerWidth;
@@ -3254,6 +3336,10 @@
       anticipatePin: 0,
       invalidateOnRefresh: true,
       pinType: lenis ? "transform" : "fixed",
+      onEnter: () => {
+        kickWorkMaps();
+        askRocket();
+      },
       onUpdate: (self) => {
         state.progress = self.progress;
         apply(self.progress);
@@ -3262,6 +3348,8 @@
       },
       onEnterBack: () => {
         autoHaul = false;
+        kickWorkMaps();
+        askRocket();
         apply(state.progress);
       },
     });
@@ -3276,8 +3364,7 @@
     );
     window.addEventListener("resize", fit);
 
-    const tick = () => {
-      requestAnimationFrame(tick);
+    runWhileVisible(pin, () => {
       const t = performance.now() * 0.001;
       const p = state.progress;
       dust.rotation.y = t * 0.02;
@@ -3299,8 +3386,24 @@
       camera.position.z += (look.z - camera.position.z) * damp;
       camera.lookAt(look.lx + state.mx * 0.05, look.ly + state.my * -0.03, 0);
       renderer.render(scene, camera);
-    };
-    tick();
+    });
+  }
+
+  function initIdleMedia() {
+    const contact = document.getElementById("contact");
+    const track = contact?.querySelector(".contact__film-track");
+    if (track) {
+      track.style.animationPlayState = "paused";
+      watchView(contact, (on) => {
+        track.style.animationPlayState = on ? "running" : "paused";
+        track.style.willChange = on ? "transform" : "auto";
+      });
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (!hasGSAP) return;
+      if (pageHidden()) gsap.ticker.sleep();
+      else gsap.ticker.wake();
+    });
   }
 
   // ——— Progress ———

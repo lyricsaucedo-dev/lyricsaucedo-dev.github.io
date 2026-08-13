@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=show2" />
+  <link rel="stylesheet" href="styles.css?v=perf1" />
   <script type="importmap">
   {
     "imports": {
@@ -517,7 +517,7 @@
             <p id="atelierLede">Brand, audience, offers, constraints. We define what “done” is before a single pixel moves.</p>
           </div>
           <article class="boards__shot is-on" data-shot="0">
-            <img src="assets/process/discover.webp" alt="Research desk: printouts, phone, pencils under a cream light." width="1920" height="1080" />
+            <img src="assets/process/discover.webp" alt="Research desk: printouts, phone, pencils under a cream light." width="1920" height="1080" loading="lazy" decoding="async" />
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">03 — Process</span>
@@ -528,7 +528,7 @@
           </article>
 
           <article class="boards__shot" data-shot="1">
-            <img src="assets/process/direction.webp" alt="Studio wall: type specimens, color chips, layout grids." width="1920" height="1080" />
+            <img src="assets/process/direction.webp" alt="Studio wall: type specimens, color chips, layout grids." width="1920" height="1080" loading="lazy" decoding="async" />
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">Art direction</span>
@@ -539,7 +539,7 @@
           </article>
 
           <article class="boards__shot" data-shot="2">
-            <img src="assets/process/build.webp" alt="Dark studio monitor with a luxury site in progress." width="1920" height="1080" />
+            <img src="assets/process/build.webp" alt="Dark studio monitor with a luxury site in progress." width="1920" height="1080" loading="lazy" decoding="async" />
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">Build</span>
@@ -550,7 +550,7 @@
           </article>
 
           <article class="boards__shot" data-shot="3">
-            <img src="assets/process/ship.webp" alt="Night of launch: finished site glowing on a monitor." width="1920" height="1080" />
+            <img src="assets/process/ship.webp" alt="Night of launch: finished site glowing on a monitor." width="1920" height="1080" loading="lazy" decoding="async" />
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">Launch</span>
@@ -575,22 +575,22 @@
     <section class="contact" id="contact">
       <div class="contact__film" aria-hidden="true">
         <div class="contact__film-track">
-          <img src="assets/jessesparks.png" alt="" />
-          <img src="assets/sjrnr.png" alt="" />
-          <img src="assets/orthodoxicons.png" alt="" />
-          <img src="assets/justhed.webp" alt="" />
-          <img src="assets/sarah.png" alt="" />
-          <img src="assets/blessedbeauty.png" alt="" />
-          <img src="assets/charmed.png" alt="" />
-          <img src="assets/conceiving.png" alt="" />
-          <img src="assets/jessesparks.png" alt="" />
-          <img src="assets/sjrnr.png" alt="" />
-          <img src="assets/orthodoxicons.png" alt="" />
-          <img src="assets/justhed.webp" alt="" />
-          <img src="assets/sarah.png" alt="" />
-          <img src="assets/blessedbeauty.png" alt="" />
-          <img src="assets/charmed.png" alt="" />
-          <img src="assets/conceiving.png" alt="" />
+          <img src="assets/jessesparks.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/sjrnr.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/orthodoxicons.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/justhed.webp" alt="" loading="lazy" decoding="async" />
+          <img src="assets/sarah.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/blessedbeauty.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/charmed.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/conceiving.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/jessesparks.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/sjrnr.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/orthodoxicons.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/justhed.webp" alt="" loading="lazy" decoding="async" />
+          <img src="assets/sarah.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/blessedbeauty.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/charmed.png" alt="" loading="lazy" decoding="async" />
+          <img src="assets/conceiving.png" alt="" loading="lazy" decoding="async" />
         </div>
       </div>
       <div class="contact__veil" aria-hidden="true"></div>
@@ -655,45 +655,14 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
   <!-- Site JS always loads — do not gate it behind Three (CSP/previews can block eval-ish CDN paths) -->
-  <script defer src="script.js?v=show2"></script>
+  <script defer src="script.js?v=perf1"></script>
   <!-- Three as a pure ES module (no UMD eval). Pour / hero listen for three-ready. -->
   <script type="module">
     try {
       const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
       window.THREE = THREE;
-      document.documentElement.classList.add("has-three");
-      const base = "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm";
       window.THREE_ADDONS = {};
-      try {
-        const { GLTFLoader } = await import(`${base}/loaders/GLTFLoader.js`);
-        window.THREE_ADDONS.GLTFLoader = GLTFLoader;
-      } catch (err) {
-        console.warn("[process] GLTFLoader failed.", err);
-      }
-      try {
-        const [
-          { EffectComposer },
-          { RenderPass },
-          { UnrealBloomPass },
-          { OutputPass },
-          { RoundedBoxGeometry },
-        ] = await Promise.all([
-          import(`${base}/postprocessing/EffectComposer.js`),
-          import(`${base}/postprocessing/RenderPass.js`),
-          import(`${base}/postprocessing/UnrealBloomPass.js`),
-          import(`${base}/postprocessing/OutputPass.js`),
-          import(`${base}/geometries/RoundedBoxGeometry.js`),
-        ]);
-        Object.assign(window.THREE_ADDONS, {
-          EffectComposer,
-          RenderPass,
-          UnrealBloomPass,
-          OutputPass,
-          RoundedBoxGeometry,
-        });
-      } catch (err) {
-        console.warn("[hero] Three addons failed — bloom/rounded boxes off.", err);
-      }
+      document.documentElement.classList.add("has-three");
     } catch (err) {
       console.warn("[pour] Three.js failed to load — cascade/grid fallback only.", err);
     }
