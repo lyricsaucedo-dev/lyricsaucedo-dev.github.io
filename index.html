@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=process13" />
+  <link rel="stylesheet" href="styles.css?v=show1" />
   <script type="importmap">
   {
     "imports": {
@@ -108,6 +108,15 @@
     </div>
 
     <div class="nav__cta-pill">
+      <button type="button" class="nav__play" id="navPlay" aria-pressed="false" aria-label="Play the site" data-hover="link">
+        <svg class="nav__play-on" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <path fill="currentColor" d="M8 5.2v13.6L19 12 8 5.2Z" />
+        </svg>
+        <svg class="nav__play-off" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+          <rect x="6" y="5" width="4.2" height="14" rx="1" fill="currentColor" />
+          <rect x="13.8" y="5" width="4.2" height="14" rx="1" fill="currentColor" />
+        </svg>
+      </button>
       <a href="#contact" class="nav__cta magnetic" data-hover="link">Hire me</a>
     </div>
     <button class="nav__burger" id="navToggle" aria-label="Menu" aria-expanded="false">
@@ -563,27 +572,60 @@
 
     <!-- CONTACT -->
     <section class="contact" id="contact">
-      <div class="contact__glow" aria-hidden="true"></div>
-      <span class="eyebrow">04 — Contact</span>
-      <h2 class="contact__title">
-        Ready for a site<br />
-        <em>worth the screenshots?</em>
-      </h2>
-      <p class="contact__lede">
-        Tell me about the brand, timeline, and budget. I reply within a day.
-      </p>
-      <a class="btn btn--xl" id="emailBtn" href="mailto:lyricsaucedo.dev@gmail.com?subject=Project%20enquiry" data-hover="link">
-        Email Lyric
-      </a>
-      <div class="contact__email-row">
-        <button type="button" class="contact__mail" id="copyEmail" aria-label="Copy email address" title="Copy email">
-          <span>lyricsaucedo.dev@gmail.com</span>
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-            <rect x="9" y="9" width="11" height="11" rx="2"></rect>
-            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
-          </svg>
-        </button>
-        <span class="contact__copied" id="emailCopied" hidden>Copied</span>
+      <div class="contact__film" aria-hidden="true">
+        <div class="contact__film-track">
+          <img src="assets/jessesparks.png" alt="" />
+          <img src="assets/sjrnr.png" alt="" />
+          <img src="assets/orthodoxicons.png" alt="" />
+          <img src="assets/justhed.webp" alt="" />
+          <img src="assets/sarah.png" alt="" />
+          <img src="assets/blessedbeauty.png" alt="" />
+          <img src="assets/charmed.png" alt="" />
+          <img src="assets/conceiving.png" alt="" />
+          <img src="assets/jessesparks.png" alt="" />
+          <img src="assets/sjrnr.png" alt="" />
+          <img src="assets/orthodoxicons.png" alt="" />
+          <img src="assets/justhed.webp" alt="" />
+          <img src="assets/sarah.png" alt="" />
+          <img src="assets/blessedbeauty.png" alt="" />
+          <img src="assets/charmed.png" alt="" />
+          <img src="assets/conceiving.png" alt="" />
+        </div>
+      </div>
+      <div class="contact__veil" aria-hidden="true"></div>
+      <div class="contact__inner">
+        <div class="contact__kicker">
+          <span class="eyebrow">04 — Contact</span>
+          <span class="contact__status">Replies within a day</span>
+        </div>
+        <h2 class="contact__title">
+          A site worth<br />
+          <em>the screenshots.</em>
+        </h2>
+        <p class="contact__lede">
+          Brand, timeline, budget. I’ll tell you if I’m the one to build it —
+          and what it should feel like when it ships.
+        </p>
+        <div class="contact__actions">
+          <a class="btn btn--xl" id="emailBtn" href="mailto:lyricsaucedo.dev@gmail.com?subject=Project%20enquiry" data-hover="link">
+            Start a project
+          </a>
+          <div class="contact__email-row">
+            <button type="button" class="contact__mail" id="copyEmail" aria-label="Copy email address" title="Copy email">
+              <span>lyricsaucedo.dev@gmail.com</span>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+                <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+              </svg>
+            </button>
+            <span class="contact__copied" id="emailCopied" hidden>Copied</span>
+          </div>
+        </div>
+        <ul class="contact__meta">
+          <li>Shopify &amp; brand sites</li>
+          <li>LA / remote</li>
+          <li>One project at a time</li>
+        </ul>
       </div>
     </section>
   </main>
@@ -612,7 +654,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
   <!-- Site JS always loads — do not gate it behind Three (CSP/previews can block eval-ish CDN paths) -->
-  <script defer src="script.js?v=process13"></script>
+  <script defer src="script.js?v=show1"></script>
   <!-- Three as a pure ES module (no UMD eval). Pour / hero listen for three-ready. -->
   <script type="module">
     try {

@@ -34,6 +34,7 @@
     initEmail();
     initMobileNote();
     initHireSticky();
+    initShowreel();
   }
 
   function initHireSticky() {
@@ -70,6 +71,86 @@
       start: "top 72%",
       onEnter: hide,
       onLeaveBack: show,
+    });
+  }
+
+  function initShowreel() {
+    const btn = document.getElementById("navPlay");
+    if (!btn) return;
+    if (reduced) {
+      btn.hidden = true;
+      return;
+    }
+
+    let playing = false;
+    const nowY = () => (lenis ? lenis.scroll : window.scrollY || 0);
+    const maxY = () =>
+      Math.max(0, document.documentElement.scrollHeight - innerHeight);
+
+    const setPlaying = (on) => {
+      playing = on;
+      document.body.classList.toggle("is-playing", on);
+      btn.setAttribute("aria-pressed", String(on));
+      btn.setAttribute("aria-label", on ? "Pause the site" : "Play the site");
+    };
+
+    const stop = () => {
+      if (!playing) return;
+      setPlaying(false);
+      if (lenis) lenis.scrollTo(nowY(), { immediate: true });
+    };
+
+    const start = () => {
+      let from = nowY();
+      const dest = maxY();
+      if (dest - from < 120) {
+        if (lenis) lenis.scrollTo(0, { immediate: true });
+        else window.scrollTo(0, 0);
+        from = 0;
+      }
+      const distance = Math.max(0, dest - from);
+      const duration = Math.max(14, distance / 300);
+      setPlaying(true);
+      const done = () => setPlaying(false);
+      if (lenis) {
+        requestAnimationFrame(() => {
+          lenis.scrollTo(dest, {
+            duration,
+            easing: (t) => t,
+            lock: false,
+            onComplete: done,
+          });
+        });
+      } else {
+        const t0 = performance.now();
+        const tick = (now) => {
+          if (!playing) return;
+          const u = Math.min(1, (now - t0) / (duration * 1000));
+          window.scrollTo(0, from + distance * u);
+          if (u < 1) requestAnimationFrame(tick);
+          else done();
+        };
+        requestAnimationFrame(tick);
+      }
+    };
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (playing) stop();
+      else start();
+    });
+    document.querySelectorAll(".nav a").forEach((a) => {
+      a.addEventListener("click", () => playing && stop());
+    });
+
+    window.addEventListener("wheel", () => playing && stop(), { passive: true });
+    window.addEventListener("touchstart", () => playing && stop(), { passive: true });
+    window.addEventListener("keydown", (e) => {
+      if (!playing) return;
+      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", "Escape"].includes(e.key)) {
+        stop();
+      }
     });
   }
 
@@ -2327,15 +2408,15 @@
     if (!hasGSAP || typeof ScrollTrigger === "undefined" || reduced) return;
 
     gsap.fromTo(
-      ".contact__title, .contact__lede, .contact .btn, .contact__email-row",
-      { y: 40, opacity: 0 },
+      ".contact__kicker, .contact__title, .contact__lede, .contact__actions, .contact__meta",
+      { y: 36, opacity: 0 },
       {
         y: 0,
         opacity: 1,
-        duration: 1,
-        stagger: 0.1,
+        duration: 1.05,
+        stagger: 0.08,
         ease: "power3.out",
-        scrollTrigger: { trigger: "#contact", start: "top 75%", toggleActions: "play none none none" },
+        scrollTrigger: { trigger: "#contact", start: "top 78%", toggleActions: "play none none none" },
       }
     );
   }
@@ -3132,14 +3213,15 @@
     fit();
 
     let autoHaul = false;
+    const pullEase = (t) => t * t * t * (t * (t * 6 - 15) + 10);
     const pullToContact = (self) => {
-      if (autoHaul || !contactEl) return;
+      if (autoHaul || !contactEl || document.body.classList.contains("is-playing")) return;
       autoHaul = true;
       const now = lenis ? lenis.scroll : window.scrollY || window.pageYOffset;
       const contactY = contactEl.getBoundingClientRect().top + now;
       const dest = Math.max(contactY, self.end) + 4;
       if (lenis) {
-        lenis.scrollTo(dest, { duration: 1.55, lock: true, force: true });
+        lenis.scrollTo(dest, { duration: 3.4, easing: pullEase, lock: true, force: true });
       } else {
         window.scrollTo({ top: dest, behavior: "smooth" });
       }
@@ -3148,8 +3230,8 @@
     ScrollTrigger.create({
       trigger: section,
       start: "top top",
-      end: "+=560%",
-      scrub: 1.15,
+      end: "+=620%",
+      scrub: 1.35,
       pin: pin,
       anticipatePin: 0,
       invalidateOnRefresh: true,
