@@ -76,6 +76,7 @@
 
   function initShowreel() {
     const btn = document.getElementById("navPlay");
+    const catcher = document.getElementById("showCatch");
     if (!btn) return;
     if (reduced) {
       btn.hidden = true;
@@ -83,55 +84,66 @@
     }
 
     let playing = false;
+    let raf = 0;
+    let lastT = 0;
+    const PX_PER_SEC = 255;
     const nowY = () => (lenis ? lenis.scroll : window.scrollY || 0);
     const maxY = () =>
       Math.max(0, document.documentElement.scrollHeight - innerHeight);
+    const wheelMul = { on: 0.9, off: 0.9 };
 
     const setPlaying = (on) => {
       playing = on;
       document.body.classList.toggle("is-playing", on);
       btn.setAttribute("aria-pressed", String(on));
       btn.setAttribute("aria-label", on ? "Pause the site" : "Play the site");
+      if (catcher) catcher.setAttribute("aria-hidden", on ? "false" : "true");
+      if (lenis) {
+        if (on) {
+          wheelMul.on = lenis.options.wheelMultiplier;
+          lenis.options.wheelMultiplier = 0;
+          lenis.options.touchMultiplier = 0;
+        } else {
+          lenis.options.wheelMultiplier = wheelMul.on || 0.9;
+          lenis.options.touchMultiplier = 1.2;
+        }
+      }
     };
 
     const stop = () => {
       if (!playing) return;
+      cancelAnimationFrame(raf);
+      raf = 0;
+      lastT = 0;
       setPlaying(false);
-      if (lenis) lenis.scrollTo(nowY(), { immediate: true });
+    };
+
+    const drive = (t) => {
+      if (!playing) return;
+      if (!lastT) lastT = t;
+      const dt = Math.min(0.05, (t - lastT) / 1000);
+      lastT = t;
+      const y = nowY();
+      const dest = maxY();
+      if (y >= dest - 6) {
+        stop();
+        return;
+      }
+      const next = Math.min(dest, y + PX_PER_SEC * dt);
+      if (lenis) lenis.scrollTo(next, { immediate: true });
+      else window.scrollTo(0, next);
+      raf = requestAnimationFrame(drive);
     };
 
     const start = () => {
-      let from = nowY();
-      const dest = maxY();
-      if (dest - from < 120) {
+      cancelAnimationFrame(raf);
+      lastT = 0;
+      if (maxY() - nowY() < 120) {
         if (lenis) lenis.scrollTo(0, { immediate: true });
         else window.scrollTo(0, 0);
-        from = 0;
       }
-      const distance = Math.max(0, dest - from);
-      const duration = Math.max(14, distance / 300);
       setPlaying(true);
-      const done = () => setPlaying(false);
-      if (lenis) {
-        requestAnimationFrame(() => {
-          lenis.scrollTo(dest, {
-            duration,
-            easing: (t) => t,
-            lock: false,
-            onComplete: done,
-          });
-        });
-      } else {
-        const t0 = performance.now();
-        const tick = (now) => {
-          if (!playing) return;
-          const u = Math.min(1, (now - t0) / (duration * 1000));
-          window.scrollTo(0, from + distance * u);
-          if (u < 1) requestAnimationFrame(tick);
-          else done();
-        };
-        requestAnimationFrame(tick);
-      }
+      raf = requestAnimationFrame(drive);
     };
 
     btn.addEventListener("click", (e) => {
@@ -140,18 +152,24 @@
       if (playing) stop();
       else start();
     });
-    document.querySelectorAll(".nav a").forEach((a) => {
-      a.addEventListener("click", () => playing && stop());
+    catcher?.addEventListener("click", (e) => {
+      e.preventDefault();
+      stop();
     });
-
-    window.addEventListener("wheel", () => playing && stop(), { passive: true });
-    window.addEventListener("touchstart", () => playing && stop(), { passive: true });
-    window.addEventListener("keydown", (e) => {
-      if (!playing) return;
-      if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", "Escape"].includes(e.key)) {
-        stop();
-      }
-    });
+    catcher?.addEventListener(
+      "wheel",
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
+    catcher?.addEventListener(
+      "touchmove",
+      (e) => {
+        e.preventDefault();
+      },
+      { passive: false }
+    );
   }
 
   function initMobileNote() {

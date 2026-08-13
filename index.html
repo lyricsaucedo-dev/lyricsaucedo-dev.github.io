@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=show1" />
+  <link rel="stylesheet" href="styles.css?v=show2" />
   <script type="importmap">
   {
     "imports": {
@@ -18,6 +18,7 @@
   </script>
 </head>
 <body>
+  <div class="show-catch" id="showCatch" aria-hidden="true"></div>
   <a href="#contact" class="hire-sticky" id="hireSticky" data-hover="link">Start a project</a>
 
   <div class="mobile-note" id="mobileNote" hidden>
@@ -654,7 +655,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
   <!-- Site JS always loads — do not gate it behind Three (CSP/previews can block eval-ish CDN paths) -->
-  <script defer src="script.js?v=show1"></script>
+  <script defer src="script.js?v=show2"></script>
   <!-- Three as a pure ES module (no UMD eval). Pour / hero listen for three-ready. -->
   <script type="module">
     try {

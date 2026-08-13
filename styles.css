@@ -30,6 +30,23 @@ body {
 }
 
 body.has-cursor, body.has-cursor a, body.has-cursor button { cursor: none; }
+body.is-playing,
+body.is-playing *,
+body.is-playing.has-cursor,
+body.is-playing.has-cursor a,
+body.is-playing.has-cursor button { cursor: none !important; }
+body.is-playing .cursor { display: none !important; }
+body.is-playing .hire-sticky { display: none !important; }
+.show-catch {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  cursor: none;
+}
+body.is-playing .show-catch {
+  display: block;
+}
 
 .mobile-note {
   position: fixed;
