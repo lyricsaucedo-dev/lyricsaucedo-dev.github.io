@@ -105,6 +105,7 @@
     initProcess();
     initProgress();
     initEmail();
+    initReach();
     initMobileNote();
     initHireSticky();
     initShowreel();
@@ -263,24 +264,14 @@
     close?.addEventListener("click", dismiss);
   }
 
-// ——— Email CTA ———
-  function initEmail() {
-    const EMAIL = "lyricsaucedo.dev@gmail.com";
-    const btn = document.getElementById("emailBtn");
-    const copyBtn = document.getElementById("copyEmail");
+// ——— Email copy + contact sheet ———
+  const EMAIL = "lyricsaucedo.dev@gmail.com";
+  const MAILTO = `mailto:${EMAIL}?subject=${encodeURIComponent("Project enquiry")}`;
+  const SMS = "sms:+19097034376";
+
+  function copyEmailAddress() {
     const note = document.getElementById("emailCopied");
-    const mailto = `mailto:${EMAIL}?subject=${encodeURIComponent("Project enquiry")}`;
-
-    const showCopied = () => {
-      if (!note) return;
-      note.hidden = false;
-      clearTimeout(note._t);
-      note._t = setTimeout(() => {
-        note.hidden = true;
-      }, 1800);
-    };
-
-    const copyEmail = async () => {
+    const write = async () => {
       try {
         await navigator.clipboard.writeText(EMAIL);
       } catch {
@@ -291,47 +282,98 @@
         document.execCommand("copy");
         ta.remove();
       }
-      showCopied();
+    };
+    write();
+    if (!note) return;
+    note.hidden = false;
+    clearTimeout(note._t);
+    note._t = setTimeout(() => {
+      note.hidden = true;
+    }, 1800);
+  }
+
+  function handoffMailto(linkEl) {
+    let handedOff = false;
+    const mark = () => {
+      handedOff = true;
+    };
+    window.addEventListener("blur", mark, { once: true });
+    const onVis = () => {
+      if (document.hidden) mark();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    window.location.href = MAILTO;
+    setTimeout(() => {
+      window.removeEventListener("blur", mark);
+      document.removeEventListener("visibilitychange", onVis);
+      if (handedOff) return;
+      copyEmailAddress();
+      if (!linkEl) return;
+      const via = linkEl.querySelector(".reach__via");
+      const prev = via?.textContent;
+      if (via) via.textContent = "Copied";
+      else {
+        const prevLabel = linkEl.textContent;
+        linkEl.textContent = "Email copied";
+        clearTimeout(linkEl._t);
+        linkEl._t = setTimeout(() => {
+          linkEl.textContent = prevLabel;
+        }, 1800);
+        return;
+      }
+      clearTimeout(linkEl._t);
+      linkEl._t = setTimeout(() => {
+        via.textContent = prev;
+      }, 1800);
+    }, 1200);
+  }
+
+  function initEmail() {
+    document.getElementById("copyEmail")?.addEventListener("click", copyEmailAddress);
+  }
+
+  function initReach() {
+    const root = document.getElementById("reach");
+    if (!root) return;
+    const text = document.getElementById("reachText");
+    const mail = document.getElementById("reachEmail");
+    const openers = document.querySelectorAll(".js-reach");
+    let lastOpener = null;
+
+    text?.setAttribute("href", SMS);
+    mail?.setAttribute("href", MAILTO);
+
+    const open = (from) => {
+      lastOpener = from || document.activeElement;
+      root.hidden = false;
+      document.body.classList.add("reach-open");
+      if (lenis?.stop) lenis.stop();
+      (root.querySelector(".reach__opt") || document.getElementById("reachClose"))?.focus();
+    };
+    const close = () => {
+      if (root.hidden) return;
+      root.hidden = true;
+      document.body.classList.remove("reach-open");
+      if (lenis?.start) lenis.start();
+      if (lastOpener && typeof lastOpener.focus === "function") lastOpener.focus();
     };
 
-    if (btn) {
-      btn.setAttribute("href", mailto);
-      btn.addEventListener("click", (e) => {
+    openers.forEach((el) => {
+      el.addEventListener("click", (e) => {
         e.preventDefault();
-        let handedOff = false;
-        const mark = () => {
-          handedOff = true;
-        };
-        window.addEventListener("blur", mark, { once: true });
-        const onVis = () => {
-          if (document.hidden) mark();
-        };
-        document.addEventListener("visibilitychange", onVis);
-
-        // Try opening the mail client
-        window.location.href = mailto;
-
-        // If focus never leaves the page, mailto likely failed — copy instead
-        setTimeout(() => {
-          window.removeEventListener("blur", mark);
-          document.removeEventListener("visibilitychange", onVis);
-          if (handedOff) return;
-          copyEmail();
-          const prev = btn.textContent;
-          btn.textContent = "Email copied";
-          clearTimeout(btn._t);
-          btn._t = setTimeout(() => {
-            btn.textContent = prev;
-          }, 1800);
-        }, 1200);
+        open(el);
       });
-    }
+    });
+    document.getElementById("reachVeil")?.addEventListener("click", close);
+    document.getElementById("reachClose")?.addEventListener("click", close);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") close();
+    });
 
-    if (copyBtn) {
-      copyBtn.addEventListener("click", () => {
-        copyEmail();
-      });
-    }
+    mail?.addEventListener("click", (e) => {
+      e.preventDefault();
+      handoffMailto(mail);
+    });
   }
 
   if (reduced || !loader) {
