@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f3ec">
+  <title>Local Browser</title>
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --ink: #1b1914;
+      --muted: #5e584e;
+      --card: #fffdf8;
+      --line: #e4ddd0;
+      --accent: #0c6b52;
+      --accent-ink: #ffffff;
+      --warn: #8a2e24;
+      --shadow: 0 1px 0 rgba(28, 25, 20, 0.04);
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141311;
+        --ink: #f3efe6;
+        --muted: #b7b0a4;
+        --card: #1e1c19;
+        --line: #34312b;
+        --accent: #3dbe9a;
+        --accent-ink: #08241c;
+        --warn: #ffb4a8;
+        --shadow: none;
+      }
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .chrome { display: none; }
+    .js .chrome { display: flex; }
+    .yesjs { display: none; }
+    .js .yesjs { display: block; }
+    .js .nojs { display: none; }
+    .app {
+      min-height: 100%;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+    header.chrome {
+      flex-direction: column;
+      gap: 8px;
+      padding: calc(8px + env(safe-area-inset-top)) 12px 10px;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .tab {
+      display: flex;
+      align-items: stretch;
+      flex: 0 0 auto;
+      max-width: 11rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--bg);
+      overflow: hidden;
+    }
+    .tab.is-on {
+      border-color: var(--accent);
+      background: var(--card);
+    }
+    .tab-label, .tab-x, .tab-add, .nav button {
+      font: inherit;
+      color: inherit;
+      background: transparent;
+      border: 0;
+      min-height: 40px;
+    }
+    .tab-label {
+      padding: 0 12px;
+      max-width: 8.5rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .tab.is-on .tab-label { font-weight: 650; }
+    .tab-x, .tab-add {
+      width: 40px;
+      padding: 0;
+    }
+    .tab-add {
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--bg);
+    }
+    .nav {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .nav button {
+      min-width: 44px;
+      padding: 0 10px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+    }
+    .nav button:disabled { opacity: 0.35; }
+    .nav button[type="submit"] {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-color: transparent;
+      font-weight: 650;
+    }
+    #address {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink);
+      font: inherit;
+      font-size: 16px;
+      padding: 0 12px;
+    }
+    .hint {
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      align-items: baseline;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .hint.is-warn { color: var(--warn); }
+    .hint a { color: var(--accent); }
+    main { flex: 1 1 auto; display: flex; min-height: 0; }
+    #start, #frame { flex: 1 1 auto; min-height: 0; }
+    #start {
+      overflow: auto;
+      padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+    }
+    #start[hidden], #frame[hidden] { display: none; }
+    .card {
+      max-width: 36rem;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 1.7rem;
+      line-height: 1.15;
+      font-weight: 650;
+      margin: 0 0 8px;
+    }
+    p { margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    ul { margin: 0; padding: 0; list-style: none; }
+    ul a {
+      display: block;
+      margin: 8px 0;
+      padding: 14px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--ink);
+      text-decoration: none;
+    }
+    ul a span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    #frame {
+      width: 100%;
+      border: 0;
+      background: white;
+    }
+    .sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="chrome">
+      <div class="tabs" id="tabs" role="tablist" aria-label="Tabs"></div>
+      <form class="nav" id="nav">
+        <button type="button" id="back" aria-label="Back">Back</button>
+        <button type="button" id="forward" aria-label="Forward">Forward</button>
+        <button type="button" id="reload" aria-label="Reload">Reload</button>
+        <button type="button" id="home">Start</button>
+        <label class="sr" for="address">Address</label>
+        <input id="address" name="address" type="text" inputmode="url" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="example.com">
+        <button type="submit">Go</button>
+      </form>
+      <p class="hint" id="hint">
+        <span id="hint-text"></span>
+        <a id="open-out" target="_blank" rel="noopener noreferrer" hidden>Open in Safari</a>
+      </p>
+    </header>
+    <main>
+      <section id="start">
+        <div class="card">
+          <h1>Local Browser</h1>
+          <div class="nojs">
+            <p>This is the offline start page. The Files preview on iPhone shows it without running scripts, so the address bar stays off.</p>
+            <p class="muted">The links below are ordinary web links. Tap one to open it in Safari when this preview allows the tap to leave the page.</p>
+          </div>
+          <div class="yesjs">
+            <p>You are on the offline start page. Type an http or https address above, or open a link here inside this page.</p>
+            <p class="muted">Back follows addresses from this bar. A site can refuse to appear inside the frame. Use Open in Safari when the area stays blank.</p>
+          </div>
+          <ul>
+            <li><a href="https://example.com">Example Domain<span>example.com — usually allows embedding</span></a></li>
+            <li><a href="https://info.cern.ch">The first website<span>info.cern.ch</span></a></li>
+          </ul>
+        </div>
+      </section>
+      <iframe id="frame" title="Loaded page" hidden referrerpolicy="no-referrer" sandbox="allow-downloads allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
+    </main>
+  </div>
+  <script>
+    document.documentElement.classList.add("js");
+
+    var MAX_TABS = 8;
+    var STORE_KEY = "local-browser-v1";
+    var tabsEl = document.getElementById("tabs");
+    var nav = document.getElementById("nav");
+    var backBtn = document.getElementById("back");
+    var forwardBtn = document.getElementById("forward");
+    var reloadBtn = document.getElementById("reload");
+    var homeBtn = document.getElementById("home");
+    var address = document.getElementById("address");
+    var hint = document.getElementById("hint");
+    var hintText = document.getElementById("hint-text");
+    var openOut = document.getElementById("open-out");
+    var start = document.getElementById("start");
+    var frame = document.getElementById("frame");
+    var tabs = [];
+    var activeId = null;
+    var loadGeneration = 0;
+
+    function uid() {
+      return Math.random().toString(36).slice(2, 8);
+    }
+
+    function isUrlEntry(entry) {
+      return !!entry && entry.kind === "url" && typeof entry.url === "string" && /^https?:\/\//i.test(entry.url);
+    }
+
+    function validTab(tab) {
+      return !!tab
+        && typeof tab.id === "string"
+        && Array.isArray(tab.entries)
+        && tab.entries.length > 0
+        && Number.isInteger(tab.index)
+        && tab.index >= 0
+        && tab.index < tab.entries.length
+        && tab.entries.every(function (entry) {
+          return entry && (entry.kind === "start" || isUrlEntry(entry));
+        });
+    }
+
+    function loadState() {
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return null;
+        var data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.tabs) || !data.tabs.every(validTab)) return null;
+        if (!data.tabs.some(function (tab) { return tab.id === data.activeId; })) return null;
+        return data;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function save() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify({ tabs: tabs, activeId: activeId }));
+      } catch (err) {
+        /* Private mode and some file viewers reject storage. The page still works. */
+      }
+    }
+
+    function active() {
+      for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].id === activeId) return tabs[i];
+      }
+      return tabs[0];
+    }
+
+    function currentEntry(tab) {
+      return tab.entries[tab.index];
+    }
+
+    function label(tab) {
+      var entry = currentEntry(tab);
+      if (!isUrlEntry(entry)) return "Start";
+      try {
+        return new URL(entry.url).hostname.replace(/^www\./, "");
+      } catch (err) {
+        return "Page";
+      }
+    }
+
+    function newTab(select) {
+      var tab = { id: uid(), entries: [{ kind: "start" }], index: 0 };
+      tabs.push(tab);
+      if (select) activeId = tab.id;
+      return tab;
+    }
+
+    function setHint(text, warn) {
+      hintText.textContent = text;
+      hint.classList.toggle("is-warn", !!warn);
+    }
+
+    function parseAddress(raw) {
+      var text = String(raw || "").trim();
+      if (!text) return { error: "Enter an address." };
+      if (text.length > 2000) return { error: "That address is too long." };
+      if (/\s/.test(text)) return { error: "Use a site address, without spaces." };
+      var withScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(text) ? text : "https://" + text;
+      var url;
+      try {
+        url = new URL(withScheme);
+      } catch (err) {
+        return { error: "That address could not be read." };
+      }
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        return { error: "Only http and https addresses can be opened." };
+      }
+      if (!url.hostname || !url.hostname.includes(".")) {
+        return { error: "Enter a site address, such as example.com." };
+      }
+      return { url: url.toString() };
+    }
+
+    function parkFrame() {
+      loadGeneration += 1;
+      frame.dataset.gen = String(loadGeneration);
+      frame.dataset.shown = "";
+      frame.src = "about:blank";
+    }
+
+    function assignFrame(url, force) {
+      if (!force && frame.dataset.shown === url && frame.getAttribute("src") === url) return;
+      var gen = loadGeneration + 1;
+      loadGeneration = gen;
+      frame.dataset.gen = String(gen);
+      frame.dataset.shown = url;
+      setHint("Loading…", false);
+      if (force && frame.getAttribute("src") === url) {
+        frame.src = "about:blank";
+        setTimeout(function () {
+          if (frame.dataset.gen !== String(gen)) return;
+          frame.src = url;
+        }, 30);
+        return;
+      }
+      frame.src = url;
+    }
+
+    function renderTabs() {
+      tabsEl.replaceChildren();
+      tabs.forEach(function (tab) {
+        var wrap = document.createElement("div");
+        wrap.className = "tab" + (tab.id === activeId ? " is-on" : "");
+        var sw = document.createElement("button");
+        sw.type = "button";
+        sw.className = "tab-label";
+        sw.setAttribute("role", "tab");
+        sw.setAttribute("aria-selected", tab.id === activeId ? "true" : "false");
+        sw.textContent = label(tab);
+        sw.addEventListener("click", function () {
+          activeId = tab.id;
+          render();
+          save();
+        });
+        wrap.appendChild(sw);
+        if (tabs.length > 1) {
+          var close = document.createElement("button");
+          close.type = "button";
+          close.className = "tab-x";
+          close.setAttribute("aria-label", "Close " + label(tab));
+          close.textContent = "×";
+          close.addEventListener("click", function () { closeTab(tab.id); });
+          wrap.appendChild(close);
+        }
+        tabsEl.appendChild(wrap);
+      });
+      var add = document.createElement("button");
+      add.type = "button";
+      add.className = "tab-add";
+      add.setAttribute("aria-label", "New tab");
+      add.textContent = "+";
+      add.disabled = tabs.length >= MAX_TABS;
+      add.addEventListener("click", function () {
+        if (tabs.length >= MAX_TABS) return;
+        newTab(true);
+        render();
+        save();
+      });
+      tabsEl.appendChild(add);
+    }
+
+    function render() {
+      var tab = active();
+      var entry = currentEntry(tab);
+      var onStart = !isUrlEntry(entry);
+      renderTabs();
+      start.hidden = !onStart;
+      frame.hidden = onStart;
+      backBtn.disabled = tab.index <= 0;
+      forwardBtn.disabled = tab.index >= tab.entries.length - 1;
+      if (document.activeElement !== address) {
+        address.value = onStart ? "" : entry.url;
+      }
+      if (onStart) {
+        parkFrame();
+        openOut.hidden = true;
+        openOut.removeAttribute("href");
+        setHint("Offline start page. Enter an http or https address to load a site.", false);
+        return;
+      }
+      openOut.hidden = false;
+      openOut.href = entry.url;
+      assignFrame(entry.url, false);
+    }
+
+    function push(entry) {
+      var tab = active();
+      var current = currentEntry(tab);
+      if (entry.kind === "start" && current.kind === "start") {
+        render();
+        return;
+      }
+      if (isUrlEntry(entry) && isUrlEntry(current) && current.url === entry.url) {
+        render();
+        return;
+      }
+      tab.entries = tab.entries.slice(0, tab.index + 1);
+      tab.entries.push(entry);
+      tab.index = tab.entries.length - 1;
+      render();
+      save();
+    }
+
+    function commit(url) {
+      if (navigator.onLine === false) {
+        setHint("You are offline. The start page is available. Loading a site needs a connection.", true);
+        return;
+      }
+      push({ kind: "url", url: url });
+    }
+
+    function closeTab(id) {
+      if (tabs.length === 1) return;
+      var idx = -1;
+      for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].id === id) idx = i;
+      }
+      if (idx < 0) return;
+      var closingActive = tabs[idx].id === activeId;
+      tabs.splice(idx, 1);
+      if (closingActive) {
+        var next = tabs[Math.max(0, idx - 1)];
+        activeId = next.id;
+      }
+      render();
+      save();
+    }
+
+    function move(delta) {
+      var tab = active();
+      var next = tab.index + delta;
+      if (next < 0 || next >= tab.entries.length) return;
+      tab.index = next;
+      render();
+      save();
+    }
+
+    frame.addEventListener("load", function () {
+      if (frame.dataset.gen !== String(loadGeneration)) return;
+      var entry = currentEntry(active());
+      if (!isUrlEntry(entry) || frame.dataset.shown !== entry.url) return;
+      try {
+        if (frame.contentWindow.location.href === "about:blank") return;
+      } catch (err) {
+        setHint("Showing this address inside the page. Back uses this bar’s history.", false);
+        return;
+      }
+      var body = frame.contentDocument && frame.contentDocument.body;
+      var text = body ? (body.innerText || "").trim() : "";
+      if (!text) {
+        setHint("This site refused to open inside the page. Use Open in Safari.", true);
+        return;
+      }
+      setHint("Showing this address inside the page. Back uses this bar’s history.", false);
+    });
+
+    nav.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var parsed = parseAddress(address.value);
+      if (parsed.error) {
+        setHint(parsed.error, true);
+        return;
+      }
+      commit(parsed.url);
+    });
+
+    backBtn.addEventListener("click", function () { move(-1); });
+    forwardBtn.addEventListener("click", function () { move(1); });
+    homeBtn.addEventListener("click", function () { push({ kind: "start" }); });
+    reloadBtn.addEventListener("click", function () {
+      var entry = currentEntry(active());
+      if (!isUrlEntry(entry)) {
+        render();
+        return;
+      }
+      if (navigator.onLine === false) {
+        setHint("You are offline. Reload needs a connection for this site.", true);
+        return;
+      }
+      assignFrame(entry.url, true);
+    });
+
+    start.addEventListener("click", function (event) {
+      var link = event.target.closest("a");
+      if (!link || !link.href) return;
+      event.preventDefault();
+      var parsed = parseAddress(link.href);
+      if (parsed.error) {
+        setHint(parsed.error, true);
+        return;
+      }
+      commit(parsed.url);
+    });
+
+    address.addEventListener("focus", function () { address.select(); });
+
+    var saved = loadState();
+    if (saved) {
+      tabs = saved.tabs;
+      activeId = saved.activeId;
+    } else {
+      newTab(true);
+    }
+    render();
+  </script>
+</body>
+</html>
