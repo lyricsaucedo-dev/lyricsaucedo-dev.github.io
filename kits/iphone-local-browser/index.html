@@ -105,9 +105,14 @@
       background: var(--bg);
     }
     .nav {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px;
+    }
+    .tools {
+      grid-column: 1 / -1;
       display: flex;
       gap: 6px;
-      align-items: center;
     }
     .nav button {
       min-width: 44px;
@@ -116,6 +121,7 @@
       background: var(--bg);
       border: 1px solid var(--line);
     }
+    .tools button { flex: 1 1 0; }
     .nav button:disabled { opacity: 0.35; }
     .nav button[type="submit"] {
       background: var(--accent);
@@ -205,13 +211,15 @@
     <header class="chrome">
       <div class="tabs" id="tabs" role="tablist" aria-label="Tabs"></div>
       <form class="nav" id="nav">
-        <button type="button" id="back" aria-label="Back">Back</button>
-        <button type="button" id="forward" aria-label="Forward">Forward</button>
-        <button type="button" id="reload" aria-label="Reload">Reload</button>
-        <button type="button" id="home">Start</button>
         <label class="sr" for="address">Address</label>
         <input id="address" name="address" type="text" inputmode="url" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="example.com">
         <button type="submit">Go</button>
+        <div class="tools">
+          <button type="button" id="back" aria-label="Back">Back</button>
+          <button type="button" id="forward" aria-label="Forward">Forward</button>
+          <button type="button" id="reload" aria-label="Reload">Reload</button>
+          <button type="button" id="home">Start</button>
+        </div>
       </form>
       <p class="hint" id="hint">
         <span id="hint-text"></span>
@@ -433,9 +441,7 @@
       frame.hidden = onStart;
       backBtn.disabled = tab.index <= 0;
       forwardBtn.disabled = tab.index >= tab.entries.length - 1;
-      if (document.activeElement !== address) {
-        address.value = onStart ? "" : entry.url;
-      }
+      address.value = onStart ? "" : entry.url;
       if (onStart) {
         parkFrame();
         openOut.hidden = true;
@@ -504,19 +510,27 @@
       if (frame.dataset.gen !== String(loadGeneration)) return;
       var entry = currentEntry(active());
       if (!isUrlEntry(entry) || frame.dataset.shown !== entry.url) return;
+      var gen = frame.dataset.gen;
+      var blank = false;
       try {
-        if (frame.contentWindow.location.href === "about:blank") return;
+        blank = frame.contentWindow.location.href === "about:blank";
       } catch (err) {
-        setHint("Showing this address inside the page. Back uses this bar’s history.", false);
+        blank = false;
+      }
+      // about:blank while src is still blank is the reload gap. A refused
+      // frame can also sit on about:blank after src is the real address.
+      // A loaded cross-origin page throws on location, same as Chromium's
+      // error page for a framing refusal, so the hint stays conditional.
+      if (blank && frame.getAttribute("src") === "about:blank") return;
+      var message = "Back uses addresses from this bar. If the area stays blank, open the site in Safari.";
+      if (blank) {
+        setTimeout(function () {
+          if (frame.dataset.gen !== gen) return;
+          setHint(message, false);
+        }, 80);
         return;
       }
-      var body = frame.contentDocument && frame.contentDocument.body;
-      var text = body ? (body.innerText || "").trim() : "";
-      if (!text) {
-        setHint("This site refused to open inside the page. Use Open in Safari.", true);
-        return;
-      }
-      setHint("Showing this address inside the page. Back uses this bar’s history.", false);
+      setHint(message, false);
     });
 
     nav.addEventListener("submit", function (event) {
