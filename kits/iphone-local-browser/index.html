@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Open in Safari</title>
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --ink: #1b1914;
+      --muted: #5e584e;
+      --card: #fffdf8;
+      --line: #e4ddd0;
+      color-scheme: light dark;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141311;
+        --ink: #f3efe6;
+        --muted: #b7b0a4;
+        --card: #1e1c19;
+        --line: #34312b;
+      }
+    }
+    body {
+      margin: 0;
+      padding: calc(28px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+      background: var(--bg);
+      color: var(--ink);
+      font: 17px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 36rem; margin: 0 auto; }
+    h1 { font-size: 1.7rem; line-height: 1.15; font-weight: 650; margin: 0 0 8px; }
+    h2 { font-size: 1.15rem; font-weight: 650; margin: 28px 0 8px; }
+    p { margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    a.site {
+      display: block;
+      margin: 12px 0;
+      padding: 16px 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    a.site strong { display: block; font-size: 1.25rem; }
+    a.site span { display: block; margin-top: 4px; color: var(--muted); font-size: 15px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Open in Safari</h1>
+    <p>Tap a site. It leaves this preview and opens in Safari as its own page.</p>
+    <a class="site" href="https://www.instagram.com/">
+      <strong>Instagram</strong>
+      <span>https://www.instagram.com/</span>
+    </a>
+    <a class="site" href="https://chatgpt.com/">
+      <strong>ChatGPT</strong>
+      <span>https://chatgpt.com/</span>
+    </a>
+    <h2>A different address</h2>
+    <p>This preview cannot take an address you type and send it to Safari. It does not run scripts, and a form on this file cannot choose a new destination.</p>
+    <p class="muted">Open the Safari app and type the address there. If a tap above stays on this page, select the address and paste it into Safari.</p>
+  </main>
+</body>
+</html>
