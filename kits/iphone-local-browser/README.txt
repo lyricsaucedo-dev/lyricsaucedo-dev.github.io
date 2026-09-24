@@ -1,9 +1,9 @@
-Local Browser
-=============
+Open in Safari
+==============
 
-A small browser page for iPhone. It does not come from the App Store, and it does not need a computer.
+Two links for an iPhone on iOS 27: Instagram and ChatGPT. Tapping one leaves the Files preview and opens that site in Safari. The sites do not run inside this file.
 
-You need the Files app and Safari. Both are already on the phone.
+You need the Files app and Safari. Both are already on the phone. No App Store install, and no computer.
 
 Put it on the phone
 -------------------
@@ -14,31 +14,21 @@ Put it on the phone
 
 What you will see
 ------------------
-The Files preview shows the start page and its links. It does not run this page's scripts, so the address bar and tabs stay hidden. That is how the iPhone preview works.
+A page with two links:
 
-Links on the start page are ordinary web links. A tap can open Safari. Try one link once so you know the preview on this phone allows it.
+- Instagram — https://www.instagram.com/
+- ChatGPT — https://chatgpt.com/
 
-The address bar, Back, Forward, Reload, and tabs appear only when something runs the page's scripts. The Files preview will not. If an app that previews HTML locally is already installed, share index.html to it. This zip does not include that app.
+Tap one. Safari should open that address. Sign in there as you normally would. Come back to this preview when you want the other site.
 
-While the address bar is available
------------------------------------
-- The start page works with no connection.
-- Type a site such as example.com and tap Go. https:// is added when you leave the scheme off.
-- Back and Forward move through addresses you opened from this bar. A link you follow inside a loaded site may not update the bar.
-- If the page stays blank, that site does not allow itself to be shown inside another page. Use Open in Safari.
-- Only http and https addresses open.
+If a tap does not leave the preview, select the address under the name, copy it, open Safari, and paste it into the address bar.
 
-Add to Home Screen does not apply to this file. That action is for a site Safari loaded from the network.
+A different address
+-------------------
+There is no box on this page for typing another site. The Files preview does not run scripts, so it cannot read what you type and open it.
 
-Optional: one page in Shortcuts
---------------------------------
-For a site that stays blank here, you can open it as a normal page without leaving stock apps:
+For any other https address, open Safari and type it.
 
-1. Open Shortcuts and create a shortcut.
-2. Add Ask for Input.
-3. Add Show Webpage (under Web) and pass that input through.
-4. Run it and type a full https:// address.
+Optional, still with no extra apps: in Shortcuts, make a shortcut with Ask for Input, then Open URLs, and pass the text through. Run it and type a full https:// address. Open URLs opens that address in Safari. That shortcut is not in this zip. An imported shortcut file would need extra trust settings, so it is not included.
 
-That is one Safari page. It does not add the tabs or the offline start page from this file.
-
-This is not a full replacement for Safari.
+This file is only a launcher. Instagram, ChatGPT, and every other site run in Safari, not in the zip.
