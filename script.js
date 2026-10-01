@@ -10,7 +10,8 @@
   const hasGSAP = typeof gsap !== "undefined";
   const hasLenis = typeof Lenis !== "undefined";
   const pageHidden = () => document.visibilityState === "hidden";
-  const gpuDpr = () => Math.min(window.devicePixelRatio || 1, 1.5);
+  let glQuality = 1;
+  const gpuDpr = () => Math.min(window.devicePixelRatio || 1, 1.25) * glQuality;
 
   const watchView = (el, onChange) => {
     let inView = !el;
@@ -54,13 +55,21 @@
   const runWhileVisible = (el, frame) => {
     let raf = 0;
     let live = false;
-    const step = () => {
+    let lastDraw = 0;
+    let cost = 16;
+    const step = (now) => {
       if (!live) {
         raf = 0;
         return;
       }
       raf = requestAnimationFrame(step);
+      // If a frame was slow (software GL), don't stack another long task immediately.
+      const gap = cost > 22 ? Math.min(80, cost * 1.5) : 0;
+      if (gap && now - lastDraw < gap) return;
+      const t0 = performance.now();
       frame();
+      cost = performance.now() - t0;
+      lastDraw = now;
     };
     watchView(el, (on) => {
       live = on;
@@ -69,16 +78,21 @@
   };
 
   const makeGL = (canvas, extra = {}) => {
-    const dpr = gpuDpr();
     const renderer = new THREE.WebGLRenderer({
       canvas,
-      antialias: dpr < 1.4,
+      antialias: false,
       powerPreference: "high-performance",
       stencil: false,
       depth: true,
       ...extra,
     });
-    renderer.setPixelRatio(dpr);
+    try {
+      const gl = renderer.getContext();
+      const dbg = gl && gl.getExtension("WEBGL_debug_renderer_info");
+      const gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "") : "";
+      if (/swiftshader|llvmpipe|softpipe|software/i.test(gpu)) glQuality = 0.65;
+    } catch (_) {}
+    renderer.setPixelRatio(gpuDpr());
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     return renderer;
   };
@@ -92,25 +106,34 @@
   const fill = document.getElementById("loaderFill");
   const count = document.getElementById("loaderCount");
 
-  const boot = () => {
+  const bootCore = () => {
     initNav();
+    initIntro();
+    initEmail();
+    initReach();
+    initMobileNote();
+    initProgress();
+  };
+
+  const bootMotion = () => {
     initLenis();
     initCursor();
     initMagnets();
-    initIntro();
     initStatement();
     initPour();
     initWorkRail();
     initCraft();
     initProcess();
-    initProgress();
-    initEmail();
-    initReach();
-    initMobileNote();
     initHireSticky();
     initShowreel();
     initIdleMedia();
-  }
+  };
+
+  const boot = () => {
+    bootCore();
+    const later = window.requestIdleCallback || ((fn) => setTimeout(fn, 1));
+    later(() => bootMotion(), { timeout: 700 });
+  };
 
   function initHireSticky() {
     const el = document.getElementById("hireSticky");
@@ -376,31 +399,26 @@
     });
   }
 
-  if (reduced || !loader) {
-    if (loader) loader.classList.add("is-done");
-    boot();
-  } else {
-    let p = 0;
-    const step = () => {
-      p = Math.min(100, p + (p > 78 ? 1.1 : 2.6) + Math.random() * 2.2);
-      if (fill) fill.style.width = `${p}%`;
-      if (count) count.textContent = String(Math.floor(p)).padStart(2, "0");
-      if (p < 100) requestAnimationFrame(step);
-      else {
-        setTimeout(() => {
-          loader.classList.add("is-done");
-          boot();
-        }, 220);
-      }
-    };
-    requestAnimationFrame(step);
-  }
+  if (loader) loader.classList.add("is-done");
+  boot();
 
   // ——— Nav ———
   function initNav() {
     const nav = document.getElementById("nav");
     const toggle = document.getElementById("navToggle");
+    const pill = nav?.querySelector(".nav__pill");
     if (!nav) return;
+
+    const syncMenu = () => {
+      const open = nav.classList.contains("open");
+      const drawer = mobile();
+      if (!pill) return;
+      const hide = drawer && !open;
+      pill.inert = hide;
+      pill.setAttribute("aria-hidden", hide ? "true" : "false");
+    };
+    syncMenu();
+    window.addEventListener("resize", syncMenu, { passive: true });
 
     const links = [...nav.querySelectorAll(".nav__menu a[data-section]")];
     const sections = links
@@ -431,19 +449,21 @@
         const open = nav.classList.toggle("open");
         toggle.setAttribute("aria-expanded", String(open));
         document.body.classList.toggle("nav-open", open);
+        syncMenu();
       });
       nav.querySelectorAll(".nav__menu a").forEach((a) =>
         a.addEventListener("click", () => {
           nav.classList.remove("open");
           toggle.setAttribute("aria-expanded", "false");
           document.body.classList.remove("nav-open");
+          syncMenu();
         })
       );
       document.addEventListener("click", (e) => {
         if (!nav.classList.contains("open")) return;
-        const pill = nav.querySelector(".nav__pill");
+        const sheet = nav.querySelector(".nav__pill");
         if (
-          pill?.contains(e.target) ||
+          sheet?.contains(e.target) ||
           toggle.contains(e.target) ||
           e.target.closest(".nav__cta-pill") ||
           e.target.closest(".nav__brand")
@@ -453,6 +473,7 @@
         nav.classList.remove("open");
         toggle.setAttribute("aria-expanded", "false");
         document.body.classList.remove("nav-open");
+        syncMenu();
       });
     }
   }
@@ -542,8 +563,8 @@
 
     const gooFilter = document.getElementById("cursor-goo");
     if (gooFilter) {
-      const dpr = Math.min(window.devicePixelRatio || 1, 3);
-      gooFilter.setAttribute("filterRes", String(Math.round(512 * dpr)));
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      gooFilter.setAttribute("filterRes", String(Math.round(360 * dpr)));
     }
 
     let mx = innerWidth / 2;
@@ -625,6 +646,7 @@
     const loop = () => {
       requestAnimationFrame(loop);
       if (pageHidden() || document.body.classList.contains("is-playing")) return;
+      if (!cursor.classList.contains("on") && mode === "follow") return;
       time += 0.016;
       let tx = mx;
       let ty = my;
@@ -755,19 +777,22 @@
         href: "https://jessesparks714.com/",
         name: "Jesse Sparks",
         type: "MMA & merch store",
-        img: "assets/jessesparks.png",
+        img: "assets/opt/jessesparks-1600.webp",
+        thumb: "assets/opt/jessesparks-thumb.webp",
       },
       {
         href: "https://sjrnr.myshopify.com/",
         name: "SJRNR",
         type: "Faith-driven streetwear",
-        img: "assets/sjrnr.png",
+        img: "assets/opt/sjrnr-1600.webp",
+        thumb: "assets/opt/sjrnr-thumb.webp",
       },
       {
         href: "https://orthodoxiconscorona.com/",
         name: "Orthodox Icons",
         type: "Sacred e-commerce",
-        img: "assets/orthodoxicons.png",
+        img: "assets/opt/orthodoxicons-1200.webp",
+        thumb: "assets/opt/orthodoxicons-thumb.webp",
       },
     ];
 
@@ -794,7 +819,14 @@
       if (nameEl) nameEl.textContent = it.name;
       if (typeEl) typeEl.textContent = it.type;
       if (liveBtn) liveBtn.href = it.href;
-      if (thumb) thumb.src = it.img;
+      if (thumb) thumb.src = it.thumb || it.img;
+      const shot = shots[i];
+      if (shot && !shot.getAttribute("src")) {
+        const pic = shot.closest("picture");
+        const source = pic?.querySelector("source[data-srcset]");
+        if (source) source.setAttribute("srcset", source.dataset.srcset);
+        if (shot.dataset.src) shot.src = shot.dataset.src;
+      }
       shots.forEach((s, si) => {
         s.classList.toggle("is-on", si === i);
         if (si === i) {
@@ -860,21 +892,31 @@
 
     const startHero3d = () => {
       if (typeof THREE === "undefined") return false;
-      document.body.classList.add("intro-webgl");
       initIntroWebGL(items, hero3d, canvas);
       return true;
     };
     if (wantHero3d) {
-      if (!startHero3d()) {
-        window.addEventListener(
-          "three-ready",
-          () => {
-            startHero3d();
-          },
-          { once: true }
-        );
-      }
+      const kickHero = () => {
+        if (!startHero3d()) {
+          window.addEventListener("three-ready", () => startHero3d(), { once: true });
+        }
+      };
+      const later = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
+      later(kickHero, { timeout: 1500 });
     }
+    const primeShots = () => {
+      shots.forEach((_, i) => {
+        if (i === 0) return;
+        const shot = shots[i];
+        if (!shot || shot.getAttribute("src")) return;
+        const pic = shot.closest("picture");
+        const source = pic?.querySelector("source[data-srcset]");
+        if (source) source.setAttribute("srcset", source.dataset.srcset);
+        if (shot.dataset.src) shot.src = shot.dataset.src;
+      });
+    };
+    const laterShots = window.requestIdleCallback || ((fn) => setTimeout(fn, 800));
+    laterShots(primeShots, { timeout: 2200 });
 
     const bg = document.getElementById("introBg");
     if (!reduced && fine) {
@@ -892,26 +934,6 @@
       );
     }
 
-    if (!hasGSAP || reduced) {
-      document.querySelectorAll(".clip__in").forEach((el) => {
-        el.style.transform = "none";
-      });
-      return;
-    }
-
-    gsap.set(".intro .clip__in", { yPercent: 110 });
-    gsap.set(
-      ".intro__brand, .intro__lede, .intro__actions, .intro__bottom",
-      { y: 40, opacity: 0 }
-    );
-
-    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
-    const titleAt = wantHero3d ? 0.95 : 0.8;
-    tl.to(".intro .clip__in", { yPercent: 0, duration: 1.2, stagger: 0.1 }, titleAt);
-    tl.to(".intro__brand", { y: 0, opacity: 1, duration: 0.85 }, titleAt + 0.28);
-    tl.to(".intro__lede", { y: 0, opacity: 1, duration: 0.85 }, titleAt + 0.38);
-    tl.to(".intro__actions", { y: 0, opacity: 1, duration: 0.85 }, titleAt + 0.48);
-    tl.to(".intro__bottom", { y: 0, opacity: 1, duration: 0.9 }, titleAt + 0.6);
   }
 
   function initIntroWebGL(items, hero3d, canvas) {
@@ -1073,6 +1095,7 @@
           screenUniforms.uMapB.value = tex;
           screenUniforms.uAspectA.value = aspects[0];
           screenUniforms.uAspectB.value = aspects[0];
+          document.body.classList.add("intro-webgl");
         }
         if (i === 1) {
           screenUniforms.uMapN.value = tex;
@@ -1218,50 +1241,49 @@
       {
         name: "Jesse Sparks",
         meta: "MMA & merch · 2026",
-        img: "assets/jessesparks.png",
+        img: "assets/opt/jessesparks-1200.webp",
         href: "https://jessesparks714.com/",
       },
       {
         name: "SJRNR",
         meta: "Streetwear · 2026",
-        img: "assets/sjrnr.png",
+        img: "assets/opt/sjrnr-1200.webp",
         href: "https://sjrnr.myshopify.com/",
       },
       {
         name: "Orthodox Icons",
         meta: "E-commerce · 2026",
-        img: "assets/orthodoxicons.png",
+        img: "assets/opt/orthodoxicons-1200.webp",
         href: "https://orthodoxiconscorona.com/",
       },
       {
         name: "Just the D",
         meta: "Surf & streetwear · 2023",
-        img: "assets/justhed.webp",
-        animated: true,
+        img: "assets/opt/justhed-944.webp",
         href: "https://justthed.com/",
       },
       {
         name: "Sarah's Lens",
         meta: "Photography · 2024",
-        img: "assets/sarah.png",
+        img: "assets/opt/sarah-1200.webp",
         href: "https://smaisanophotography.com/",
       },
       {
         name: "charmedbybanana",
         meta: "E-commerce · 2025",
-        img: "assets/charmed.png",
+        img: "assets/opt/charmed-1200.webp",
         href: "https://www.charmedbybanana.com/",
       },
       {
         name: "Blessed Beauty",
         meta: "Beauty · 2025",
-        img: "assets/blessedbeauty.png",
+        img: "assets/opt/blessedbeauty-1200.webp",
         href: "https://lyricsaucedo-dev.github.io/blessedbeauty/",
       },
       {
         name: "Conceiving Victory",
         meta: "Brand site · 2025",
-        img: "assets/conceiving.png",
+        img: "assets/opt/conceiving-1200.webp",
         href: "https://conceiving-victory.vercel.app/",
       },
     ];
@@ -1315,19 +1337,14 @@
       if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
     };
 
-    // Three loads async via ES module; don't block the rest of the site on it
-    if (typeof THREE !== "undefined") {
-      startDesktopPour();
-    } else {
-      let started = false;
-      const go = () => {
-        if (started) return;
-        started = true;
+    // Build the tunnel only once this section is near, so startup stays on the hero.
+    onceNear(section, "100% 0px", () => {
+      if (typeof THREE !== "undefined") {
         startDesktopPour();
-      };
-      window.addEventListener("three-ready", go, { once: true });
-      setTimeout(go, 4000);
-    }
+        return;
+      }
+      window.addEventListener("three-ready", () => startDesktopPour(), { once: true });
+    });
   }
 
   function initPourCascade(section, pin, projects, setHud, hint, hintFill) {
@@ -2175,20 +2192,7 @@
 
     // Title reveal
     if (hasGSAP && typeof ScrollTrigger !== "undefined" && !reduced) {
-      const titleIns = gsap.utils.toArray("#work .work__title .clip__in");
-      if (document.body.classList.contains("pour-webgl")) {
-        // Arriving from the tunnel — keep the real Work title visible
-        gsap.set(titleIns, { yPercent: 0 });
-      } else {
-        gsap.set(titleIns, { yPercent: 110 });
-        gsap.to(titleIns, {
-          yPercent: 0,
-          duration: 1.1,
-          stagger: 0.1,
-          ease: "power4.out",
-          scrollTrigger: { trigger: "#work .work__head", start: "top 80%" },
-        });
-      }
+      gsap.set("#work .work__title .clip__in", { yPercent: 0 });
     }
 
     if (!hasGSAP || typeof ScrollTrigger === "undefined" || reduced) {
@@ -2318,7 +2322,7 @@
       gsap.set(slabL, { xPercent: 0 });
       gsap.set(slabR, { xPercent: 0 });
       gsap.set(sun, { scale: 0.06, opacity: 0.4 });
-      gsap.set(words, { opacity: 0, y: "1.1em", rotateX: 70 });
+      gsap.set(words, { opacity: 1, y: 0, rotateX: 0 });
       gsap.set(land, { opacity: 0, y: 28 });
 
       const tl = gsap.timeline({
@@ -2336,34 +2340,20 @@
       });
 
       // 1. Hairline cracks the page
-      tl.to(hair, { scaleY: 1, duration: 0.12 }, 0)
-        // 2. Slabs peel — you see the cream world in the wound
-        .to(slabL, { xPercent: -102, duration: 0.28 }, 0.1)
-        .to(slabR, { xPercent: 102, duration: 0.28 }, 0.1)
-        .to(hair, { opacity: 0, duration: 0.08 }, 0.18)
-        // 3. Fall in — sun blooms to a full eclipse field
-        .to(sun, { scale: 0.45, opacity: 1, duration: 0.12 }, 0.16)
-        .to(sun, { scale: 9.5, duration: 0.28 }, 0.28)
-        // 4. Type builds inside the cream
-        .to(
-          words,
-          {
-            opacity: 1,
-            y: 0,
-            rotateX: 0,
-            duration: 0.08,
-            stagger: 0.06,
-          },
-          0.42
-        )
-        // 5. Hold the sentence
-        .to({}, { duration: 0.1 }, 0.72)
-        // 6. Slam: type sinks, cream drains, Craft title lands on black
-        .to(words, { opacity: 0, y: "-0.6em", duration: 0.1 }, 0.8)
-        .to(sun, { scale: 0.01, opacity: 0, duration: 0.14 }, 0.82)
-        .to(land, { opacity: 1, y: 0, duration: 0.12 }, 0.86)
-        .to(slabL, { xPercent: 0, duration: 0.12 }, 0.86)
-        .to(slabR, { xPercent: 0, duration: 0.12 }, 0.86);
+      tl.to(hair, { scaleY: 1, duration: 0.1 }, 0)
+        // Type is already readable, then the slabs open onto it — never a blank cream field.
+        .to(slabL, { xPercent: -102, duration: 0.26 }, 0.12)
+        .to(slabR, { xPercent: 102, duration: 0.26 }, 0.12)
+        .to(hair, { opacity: 0, duration: 0.08 }, 0.2)
+        .to(sun, { scale: 0.45, opacity: 1, duration: 0.12 }, 0.18)
+        .to(sun, { scale: 9.5, duration: 0.28 }, 0.3)
+        .to({}, { duration: 0.16 }, 0.62)
+        // Slabs close before the sentence leaves, so cream is never empty.
+        .to(slabL, { xPercent: 0, duration: 0.14 }, 0.78)
+        .to(slabR, { xPercent: 0, duration: 0.14 }, 0.78)
+        .to(sun, { scale: 0.01, opacity: 0, duration: 0.12 }, 0.8)
+        .to(land, { opacity: 1, y: 0, duration: 0.12 }, 0.84)
+        .to(words, { opacity: 0, duration: 0.08 }, 0.9);
     }
 
     // Cap sections fade up (skip kinetic — it has its own pin scene)
@@ -2371,10 +2361,9 @@
       if (el.getAttribute("data-cap") === "type") return;
       gsap.fromTo(
         el,
-        { y: 60, opacity: 0 },
+        { y: 28 },
         {
           y: 0,
-          opacity: 1,
           duration: 1,
           ease: "power3.out",
           scrollTrigger: { trigger: el, start: "top 85%" },
@@ -2402,7 +2391,7 @@
       });
 
       const words = display.querySelectorAll(".cap__word");
-      gsap.set(inners, { yPercent: 110, opacity: 0.15 });
+      gsap.set(inners, { yPercent: 0, opacity: 1 });
 
       const isMob = mobile();
       const viewH = () =>
@@ -2433,30 +2422,13 @@
         },
       });
 
-      tl.to(inners, {
-        yPercent: 0,
-        opacity: 1,
-        ease: "none",
-        stagger: isMob ? 0.12 : 0.18,
-      });
+      tl.to(inners, { opacity: 1, ease: "none", duration: 0.01 });
     }
 
     // Image clip reveal
     const frame = document.querySelector(".cap__frame");
     const frameImg = frame?.querySelector("img");
-    if (frame) {
-      gsap.fromTo(
-        frame,
-        { clipPath: "inset(100% 0 0 0)" },
-        {
-          clipPath: "inset(0% 0 0 0)",
-          duration: 1.3,
-          ease: "power4.inOut",
-          scrollTrigger: { trigger: frame, start: "top 80%" },
-          onComplete: () => frame.classList.add("is-open"),
-        }
-      );
-    }
+    if (frame) frame.classList.add("is-open");
     if (frameImg) {
       gsap.fromTo(
         frameImg,
@@ -2538,10 +2510,9 @@
 
     gsap.fromTo(
       ".contact__kicker, .contact__title, .contact__lede, .contact__actions, .contact__meta",
-      { y: 36, opacity: 0 },
+      { y: 20 },
       {
         y: 0,
-        opacity: 1,
         duration: 1.05,
         stagger: 0.08,
         ease: "power3.out",
@@ -2628,17 +2599,10 @@
       initBoards();
     };
 
-    if (typeof THREE !== "undefined") start();
-    else {
-      let started = false;
-      const go = () => {
-        if (started) return;
-        started = true;
-        start();
-      };
-      window.addEventListener("three-ready", go, { once: true });
-      setTimeout(go, 4000);
-    }
+    onceNear(section, "80% 0px", () => {
+      if (typeof THREE !== "undefined") start();
+      else window.addEventListener("three-ready", () => start(), { once: true });
+    });
   }
 
   function initAtelierWebGL(section, pin, canvas) {
@@ -2716,14 +2680,14 @@
     scene.add(new THREE.DirectionalLight(0x857f72, 0.4).translateX(-3.5).translateY(1).translateZ(1.4));
 
     const work = [
-      { key: "jesse", src: "assets/jessesparks.png" },
-      { key: "sjrnr", src: "assets/sjrnr.png" },
-      { key: "orthodox", src: "assets/orthodoxicons.png" },
-      { key: "justhed", src: "assets/justhed.webp" },
-      { key: "sarah", src: "assets/sarah.png" },
-      { key: "blessed", src: "assets/blessedbeauty.png" },
-      { key: "charmed", src: "assets/charmed.png" },
-      { key: "conceiving", src: "assets/conceiving.png" },
+      { key: "jesse", src: "assets/opt/jessesparks-1200.webp" },
+      { key: "sjrnr", src: "assets/opt/sjrnr-1200.webp" },
+      { key: "orthodox", src: "assets/opt/orthodoxicons-1200.webp" },
+      { key: "justhed", src: "assets/opt/justhed-944.webp" },
+      { key: "sarah", src: "assets/opt/sarah-1200.webp" },
+      { key: "blessed", src: "assets/opt/blessedbeauty-1200.webp" },
+      { key: "charmed", src: "assets/opt/charmed-1200.webp" },
+      { key: "conceiving", src: "assets/opt/conceiving-1200.webp" },
     ];
     const htmlImgs = {};
     const creamMat = new THREE.MeshPhysicalMaterial({

@@ -249,8 +249,7 @@ ul, ol { list-style: none; }
 .clip { display: block; overflow: hidden; }
 .clip__in {
   display: block;
-  transform: translateY(110%);
-  will-change: transform;
+  transform: none;
 }
 
 /* â€”â€”â€” Loader â€”â€”â€” */
@@ -259,17 +258,11 @@ ul, ol { list-style: none; }
   inset: 0;
   z-index: 10000;
   background: var(--bg);
-  display: grid;
+  display: none;
   place-items: center;
   transition: opacity 0.7s var(--ease), visibility 0.7s;
 }
 .loader.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
-body:has(.loader:not(.is-done)) .intro__center,
-body:has(.loader:not(.is-done)) .intro__lockup,
-body:has(.loader:not(.is-done)) .intro__bottom {
-  opacity: 0;
-  visibility: hidden;
-}
 .loader__stage { width: min(280px, 78vw); text-align: center; }
 .loader__logo {
   display: block;
@@ -451,6 +444,9 @@ body:has(.loader:not(.is-done)) .intro__bottom {
   letter-spacing: -0.02em;
   justify-self: start;
 }
+.nav__brand picture,
+.intro__brand picture,
+.foot__brand picture { display: contents; }
 .nav__brand img { width: 40px; height: auto; }
 .nav__name {
   white-space: nowrap;
@@ -655,6 +651,7 @@ body.intro-webgl .intro::after {
   opacity: 1;
   animation: drift 10s ease-out forwards;
 }
+.intro__shot:not([src]) { visibility: hidden; }
 @keyframes drift {
   from { transform: scale(1.12); }
   to { transform: scale(1); }
@@ -872,26 +869,56 @@ body.intro-webgl .intro__title {
 .intro__pips {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
+/* 44px hit box. Negative margin keeps the painted 8px / 32px pill on the same rhythm. */
 .pip {
+  width: 44px;
+  height: 44px;
+  margin: -18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  position: relative;
+  flex: 0 0 auto;
+  appearance: none;
+}
+.pip.is-on { width: 68px; }
+.pip::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
   width: 8px;
   height: 8px;
   border-radius: 99px;
   background: rgba(243,237,224,0.2);
-  overflow: hidden;
-  position: relative;
+  transform: translate(-50%, -50%);
   transition: width 0.4s var(--ease);
+  pointer-events: none;
 }
-.pip.is-on {
+.pip.is-on::before {
   width: 32px;
   background: rgba(243,237,224,0.14);
 }
 .pip__fill {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: calc(50% - 4px);
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 99px;
   background: var(--cream);
   transform: scaleX(0);
-  transform-origin: left;
+  transform-origin: left center;
+  pointer-events: none;
+}
+.pip.is-on .pip__fill {
+  width: 32px;
+  left: calc(50% - 16px);
 }
 
 /* â€”â€”â€” Statement â€”â€”â€” */
@@ -1111,6 +1138,10 @@ body.intro-webgl .intro__title {
   text-decoration: none;
   transform-style: preserve-3d;
   will-change: transform, opacity, filter;
+}
+.pour__card picture {
+  display: block;
+  width: 100%;
 }
 .pour__card img {
   display: block;
@@ -1372,10 +1403,9 @@ body.pour-static .pour__pin {
 .rift__type span {
   display: inline-block;
   margin: 0 0.12em;
-  opacity: 0;
-  transform: translate3d(0, 1.1em, 0) rotateX(70deg);
+  opacity: 1;
+  transform: none;
   transform-origin: 50% 100%;
-  will-change: transform, opacity;
 }
 .rift__land {
   position: absolute;
@@ -1541,10 +1571,13 @@ body.pour-static .pour__pin {
   color: var(--cream);
 }
 .cap__note {
+  position: relative;
+  z-index: 2;
   margin-top: 1.5rem;
   color: var(--cream-3);
   font-size: 0.95rem;
   max-width: 42ch;
+  line-height: 1.45;
 }
 
 .cap--split {
@@ -1572,9 +1605,9 @@ body.pour-static .pour__pin {
   border-radius: 4px;
   aspect-ratio: 16 / 11;
   background: var(--bg-3);
-  clip-path: inset(0 0 100% 0);
+  clip-path: none;
 }
-.cap__frame.is-open { clip-path: inset(0 0 0 0); }
+.cap__frame.is-open { clip-path: none; }
 .cap__frame picture {
   display: block;
   width: 100%;
@@ -1601,11 +1634,12 @@ body.pour-static .pour__pin {
   padding: 1.5rem 0 0.35rem;
 }
 .ticker__row--names {
-  padding: 0.15rem 0 1.1rem;
+  padding: 0.55rem 0 1.1rem;
 }
 .ticker__row--film {
   padding: 0 0 1.5rem;
   perspective: 72rem;
+  overflow: hidden;
 }
 .ticker__track {
   display: inline-flex;
@@ -1613,9 +1647,10 @@ body.pour-static .pour__pin {
   gap: 1.6rem;
   white-space: nowrap;
   font-family: var(--display);
-  font-size: clamp(1.5rem, 3.2vw, 2.4rem);
+  font-size: clamp(1.35rem, 3.2vw, 2.4rem);
   font-weight: 500;
   letter-spacing: -0.025em;
+  line-height: 1.35;
   color: var(--cream);
   will-change: transform;
   width: max-content;
@@ -1649,6 +1684,11 @@ body.pour-static .pour__pin {
   border-radius: 3px;
   background: var(--bg-3);
   isolation: isolate;
+}
+.ticker__shot picture {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .ticker__shot img {
   width: 100%;
@@ -1898,14 +1938,17 @@ body.atelier-webgl .boards__pin::after {
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
+  height: auto;
   background: #050504;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
   text-align: left;
-  padding: 0;
-  overflow: hidden;
+  box-sizing: border-box;
+  padding: calc(5.5rem + env(safe-area-inset-top, 0px)) 0 clamp(3.5rem, 8vh, 5.5rem);
+  scroll-margin-top: 4.5rem;
+  overflow: visible;
   border-top: 1px solid var(--line);
 }
 .contact__film {
@@ -1923,7 +1966,14 @@ body.atelier-webgl .boards__pin::after {
   padding: 12vh 0;
   animation: contactFilm 48s linear infinite;
 }
+.contact__film-track picture {
+  display: block;
+  height: 100%;
+  width: auto;
+  flex: none;
+}
 .contact__film-track img {
+  display: block;
   height: 100%;
   width: auto;
   aspect-ratio: 16 / 10;
@@ -1947,7 +1997,7 @@ body.atelier-webgl .boards__pin::after {
   position: relative;
   z-index: 1;
   width: min(1120px, calc(100% - 3rem));
-  padding: 0 0 clamp(3.5rem, 8vh, 5.5rem);
+  padding: 0;
 }
 .contact__kicker {
   display: flex;
@@ -1970,7 +2020,10 @@ body.atelier-webgl .boards__pin::after {
   font-size: clamp(3.2rem, 8vw, 7.2rem);
   font-weight: 500;
   letter-spacing: -0.045em;
-  line-height: 0.92;
+  line-height: 1.05;
+  max-width: 100%;
+  text-wrap: wrap;
+  overflow-wrap: break-word;
 }
 .contact__title em {
   font-style: italic;
@@ -2202,6 +2255,15 @@ body.nav-open { overflow: hidden; }
     pointer-events: auto;
   }
 
+  .nav:not(.open) .nav__pill {
+    visibility: hidden;
+    pointer-events: none;
+    clip-path: inset(0 0 0 100%);
+  }
+  .nav__menu {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .nav__pill {
     display: block;
     position: fixed;
@@ -2220,7 +2282,7 @@ body.nav-open { overflow: hidden; }
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     overflow-y: auto;
-    transform: translateX(100%);
+    transform: translateX(110%);
     visibility: hidden;
     transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.42s;
   }
@@ -2407,6 +2469,9 @@ body.nav-open { overflow: hidden; }
     margin-left: -1.1rem;
     margin-right: -1.1rem;
   }
+  .ticker__row--type { padding: 0.85rem 0 0.45rem; }
+  .ticker__row--names { padding: 0.35rem 0 0.85rem; }
+  .ticker__track { font-size: clamp(1.2rem, 5.2vw, 1.7rem); }
   .ticker__shot {
     width: 168px;
     height: 96px;
@@ -2421,8 +2486,12 @@ body.nav-open { overflow: hidden; }
   .boards__copy h2 { font-size: clamp(2.6rem, 12vw, 4rem); }
   .boards__ticks { right: 0.85rem; }
 
-  .contact__inner { width: calc(100% - 2.2rem); padding-bottom: 4.5rem; }
-  .contact__title { font-size: clamp(2.4rem, 12vw, 3.4rem); }
+  .contact {
+    padding-top: calc(5.75rem + env(safe-area-inset-top, 0px));
+    padding-bottom: max(3rem, env(safe-area-inset-bottom, 0px));
+  }
+  .contact__inner { width: calc(100% - 2.2rem); padding-bottom: 0; }
+  .contact__title { font-size: clamp(2.15rem, 10vw, 3.1rem); line-height: 1.08; }
   .contact__film-track { padding: 18vh 0; gap: 0.55rem; }
   .contact__mail { font-size: 0.95rem; word-break: break-all; }
 
