@@ -5,10 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lyricsaucedo.dev — Web Design & Development</title>
   <meta name="description" content="Award-caliber freelance web design and development for ambitious brands. Shopify, brand sites, and immersive digital experiences." />
+  <link rel="icon" href="favicon.ico" sizes="any" />
+  <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=contact2" />
+  <link rel="stylesheet" href="styles.css?v=fast1" />
+  <link
+    rel="preload"
+    as="image"
+    href="assets/opt/jessesparks-800.avif"
+    imagesrcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w"
+    imagesizes="100vw"
+    type="image/avif"
+    fetchpriority="high"
+  />
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script defer src="script.js?v=fast1"></script>
   <script type="importmap">
   {
     "imports": {
@@ -81,7 +96,7 @@
 
   <div class="loader" id="loader" aria-hidden="true">
     <div class="loader__stage">
-      <img src="assets/logo.png" alt="" class="loader__logo" />
+      <img src="assets/opt/logo-64.webp" alt="" class="loader__logo" width="64" height="35" />
       <div class="loader__meta">
         <span class="loader__tag">Lyricsaucedo.dev</span>
         <span class="loader__count"><span id="loaderCount">00</span></span>
@@ -108,7 +123,7 @@
             y="-48"
             width="256"
             height="256"
-            filterRes="1024"
+            filterRes="512"
             color-interpolation-filters="sRGB"
           >
             <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
@@ -144,8 +159,12 @@
   <div class="noise" aria-hidden="true"></div>
 
   <header class="nav" id="nav">
-    <a href="#intro" class="nav__brand" data-hover="link">
-      <img src="assets/logo.png" alt="" width="40" height="27" />
+    <a href="#intro" class="nav__brand" aria-label="Lyric Saucedo" data-hover="link">
+      <picture>
+        <source type="image/avif" srcset="assets/opt/logo-64.avif 64w, assets/opt/logo-128.avif 128w" sizes="40px" />
+        <source type="image/webp" srcset="assets/opt/logo-64.webp 64w, assets/opt/logo-128.webp 128w" sizes="40px" />
+        <img src="assets/opt/logo-128.webp" alt="" width="40" height="22" />
+      </picture>
       <span class="nav__name">Lyric Saucedo</span>
     </a>
 
@@ -181,16 +200,30 @@
     <section class="intro" id="intro">
       <canvas class="intro__canvas" id="introCanvas" data-hover="view" aria-hidden="true"></canvas>
       <div class="intro__bg" id="introBg" aria-hidden="true">
-        <img class="intro__shot is-on" src="assets/jessesparks.png" alt="" data-shot="0" />
-        <img class="intro__shot" src="assets/sjrnr.png" alt="" data-shot="1" />
-        <img class="intro__shot" src="assets/orthodoxicons.png" alt="" data-shot="2" />
+        <picture>
+          <source type="image/avif" srcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w" sizes="100vw" />
+          <source type="image/webp" srcset="assets/opt/jessesparks-480.webp 480w, assets/opt/jessesparks-800.webp 800w, assets/opt/jessesparks-1200.webp 1200w, assets/opt/jessesparks-1600.webp 1600w, assets/opt/jessesparks-1891.webp 1891w" sizes="100vw" />
+          <img class="intro__shot is-on" src="assets/opt/jessesparks-1200.webp" alt="" data-shot="0" width="1891" height="894" decoding="async" fetchpriority="high" />
+        </picture>
+        <picture>
+          <source type="image/avif" data-srcset="assets/opt/sjrnr-480.avif 480w, assets/opt/sjrnr-800.avif 800w, assets/opt/sjrnr-1200.avif 1200w, assets/opt/sjrnr-1600.avif 1600w, assets/opt/sjrnr-1912.avif 1912w" sizes="100vw" />
+          <img class="intro__shot" alt="" data-shot="1" width="1912" height="902" decoding="async" data-src="assets/opt/sjrnr-1600.webp" />
+        </picture>
+        <picture>
+          <source type="image/avif" data-srcset="assets/opt/orthodoxicons-480.avif 480w, assets/opt/orthodoxicons-800.avif 800w, assets/opt/orthodoxicons-1200.avif 1200w" sizes="100vw" />
+          <img class="intro__shot" alt="" data-shot="2" width="1200" height="1200" decoding="async" data-src="assets/opt/orthodoxicons-1200.webp" />
+        </picture>
         <div class="intro__shade"></div>
         <div class="intro__vignette"></div>
       </div>
 
       <div class="intro__lockup" data-enter>
         <div class="intro__brand">
-          <img src="assets/logo.png" alt="" class="intro__mark" />
+          <picture>
+            <source type="image/avif" srcset="assets/opt/logo-128.avif 128w, assets/opt/logo-256.avif 256w, assets/opt/logo-512.avif 512w" sizes="280px" />
+            <source type="image/webp" srcset="assets/opt/logo-128.webp 128w, assets/opt/logo-256.webp 256w, assets/opt/logo-512.webp 512w" sizes="280px" />
+            <img src="assets/opt/logo-256.webp" alt="" class="intro__mark" width="1278" height="691" decoding="async" />
+          </picture>
           <p class="intro__wordmark">Lyricsaucedo.dev</p>
           <div class="intro__offer">
             <p class="intro__lede">
@@ -215,7 +248,7 @@
       <div class="intro__bottom" data-enter>
         <a class="intro__feature" id="introLive" href="https://jessesparks714.com/" target="_blank" rel="noopener" data-hover="view">
           <span class="intro__feature-thumb">
-            <img id="introThumb" src="assets/jessesparks.png" alt="" />
+            <img id="introThumb" src="assets/opt/jessesparks-thumb.webp" alt="" width="160" height="76" decoding="async" />
           </span>
           <span class="intro__feature-copy">
             <span class="intro__feature-k">Featured</span>
@@ -270,27 +303,27 @@
         <div class="pour__fallback" id="pourFallback">
           <div class="pour__cascade" id="pourCascade">
             <a class="pour__card" href="https://jessesparks714.com/" target="_blank" rel="noopener" data-pour="0">
-              <img src="assets/jessesparks.png" alt="" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/jessesparks-480.webp 480w, assets/opt/jessesparks-800.webp 800w, assets/opt/jessesparks-1200.webp 1200w, assets/opt/jessesparks-1600.webp 1600w, assets/opt/jessesparks-1891.webp 1891w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/jessesparks-1200.webp" alt="" width="1891" height="894" loading="lazy" fetchpriority="low" decoding="async" /></picture>
               <span>Jesse Sparks</span>
             </a>
             <a class="pour__card" href="https://sjrnr.myshopify.com/" target="_blank" rel="noopener" data-pour="1">
-              <img src="assets/sjrnr.png" alt="" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/sjrnr-480.avif 480w, assets/opt/sjrnr-800.avif 800w, assets/opt/sjrnr-1200.avif 1200w, assets/opt/sjrnr-1600.avif 1600w, assets/opt/sjrnr-1912.avif 1912w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/sjrnr-480.webp 480w, assets/opt/sjrnr-800.webp 800w, assets/opt/sjrnr-1200.webp 1200w, assets/opt/sjrnr-1600.webp 1600w, assets/opt/sjrnr-1912.webp 1912w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/sjrnr-1200.webp" alt="" width="1912" height="902" loading="lazy" fetchpriority="low" decoding="async" /></picture>
               <span>SJRNR</span>
             </a>
             <a class="pour__card" href="https://orthodoxiconscorona.com/" target="_blank" rel="noopener" data-pour="2">
-              <img src="assets/orthodoxicons.png" alt="" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/orthodoxicons-480.avif 480w, assets/opt/orthodoxicons-800.avif 800w, assets/opt/orthodoxicons-1200.avif 1200w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/orthodoxicons-480.webp 480w, assets/opt/orthodoxicons-800.webp 800w, assets/opt/orthodoxicons-1200.webp 1200w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/orthodoxicons-1200.webp" alt="" width="1200" height="1200" loading="lazy" fetchpriority="low" decoding="async" /></picture>
               <span>Orthodox Icons</span>
             </a>
             <a class="pour__card" href="https://justthed.com/" target="_blank" rel="noopener" data-pour="3">
-              <img src="assets/justhed.png" alt="" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/justhed-480.avif 480w, assets/opt/justhed-800.avif 800w, assets/opt/justhed-944.avif 944w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/justhed-480.webp 480w, assets/opt/justhed-800.webp 800w, assets/opt/justhed-944.webp 944w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/justhed-944.webp" alt="" width="944" height="472" loading="lazy" fetchpriority="low" decoding="async" /></picture>
               <span>Just the D</span>
             </a>
             <a class="pour__card" href="https://smaisanophotography.com/" target="_blank" rel="noopener" data-pour="4">
-              <img src="assets/sarah.png" alt="" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/sarah-480.avif 480w, assets/opt/sarah-800.avif 800w, assets/opt/sarah-1200.avif 1200w, assets/opt/sarah-1600.avif 1600w, assets/opt/sarah-1890.avif 1890w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/sarah-480.webp 480w, assets/opt/sarah-800.webp 800w, assets/opt/sarah-1200.webp 1200w, assets/opt/sarah-1600.webp 1600w, assets/opt/sarah-1890.webp 1890w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/sarah-1200.webp" alt="" width="1890" height="939" loading="lazy" fetchpriority="low" decoding="async" /></picture>
               <span>Sarah's Lens</span>
             </a>
             <a class="pour__card" href="https://www.charmedbybanana.com/" target="_blank" rel="noopener" data-pour="5">
-              <img src="assets/charmed.png" alt="" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/charmed-480.avif 480w, assets/opt/charmed-800.avif 800w, assets/opt/charmed-1200.avif 1200w, assets/opt/charmed-1600.avif 1600w, assets/opt/charmed-1891.avif 1891w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/charmed-480.webp 480w, assets/opt/charmed-800.webp 800w, assets/opt/charmed-1200.webp 1200w, assets/opt/charmed-1600.webp 1600w, assets/opt/charmed-1891.webp 1891w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/charmed-1200.webp" alt="" width="1891" height="942" loading="lazy" fetchpriority="low" decoding="async" /></picture>
               <span>charmedbybanana</span>
             </a>
           </div>
@@ -319,7 +352,7 @@
       <div class="work__viewport" id="workViewport">
         <div class="work__rail" id="workRail">
           <a class="panel" href="https://jessesparks714.com/" target="_blank" rel="noopener" data-hover="view">
-            <div class="panel__media"><img src="assets/jessesparks.png" alt="Jesse Sparks store" loading="lazy" /></div>
+            <div class="panel__media"><picture><source type="image/avif" srcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/jessesparks-480.webp 480w, assets/opt/jessesparks-800.webp 800w, assets/opt/jessesparks-1200.webp 1200w, assets/opt/jessesparks-1600.webp 1600w, assets/opt/jessesparks-1891.webp 1891w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/jessesparks-1200.webp" alt="Jesse Sparks store" width="1891" height="894" loading="lazy" fetchpriority="low" decoding="async" /></picture></div>
             <div class="panel__meta">
               <span>01</span>
               <h3>Jesse Sparks</h3>
@@ -327,7 +360,7 @@
             </div>
           </a>
           <a class="panel" href="https://orthodoxiconscorona.com/" target="_blank" rel="noopener" data-hover="view">
-            <div class="panel__media"><img src="assets/orthodoxicons.png" alt="Orthodox Icons Corona" loading="lazy" /></div>
+            <div class="panel__media"><picture><source type="image/avif" srcset="assets/opt/orthodoxicons-480.avif 480w, assets/opt/orthodoxicons-800.avif 800w, assets/opt/orthodoxicons-1200.avif 1200w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/orthodoxicons-480.webp 480w, assets/opt/orthodoxicons-800.webp 800w, assets/opt/orthodoxicons-1200.webp 1200w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/orthodoxicons-1200.webp" alt="Orthodox Icons Corona" width="1200" height="1200" loading="lazy" fetchpriority="low" decoding="async" /></picture></div>
             <div class="panel__meta">
               <span>02</span>
               <h3>Orthodox Icons</h3>
@@ -335,7 +368,7 @@
             </div>
           </a>
           <a class="panel" href="https://sjrnr.myshopify.com/" target="_blank" rel="noopener" data-hover="view">
-            <div class="panel__media"><img src="assets/sjrnr.png" alt="SJRNR streetwear" loading="lazy" /></div>
+            <div class="panel__media"><picture><source type="image/avif" srcset="assets/opt/sjrnr-480.avif 480w, assets/opt/sjrnr-800.avif 800w, assets/opt/sjrnr-1200.avif 1200w, assets/opt/sjrnr-1600.avif 1600w, assets/opt/sjrnr-1912.avif 1912w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/sjrnr-480.webp 480w, assets/opt/sjrnr-800.webp 800w, assets/opt/sjrnr-1200.webp 1200w, assets/opt/sjrnr-1600.webp 1600w, assets/opt/sjrnr-1912.webp 1912w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/sjrnr-1200.webp" alt="SJRNR streetwear" width="1912" height="902" loading="lazy" fetchpriority="low" decoding="async" /></picture></div>
             <div class="panel__meta">
               <span>03</span>
               <h3>SJRNR</h3>
@@ -344,10 +377,7 @@
           </a>
           <a class="panel" href="https://justthed.com/" target="_blank" rel="noopener" data-hover="view">
             <div class="panel__media">
-              <picture>
-                <source srcset="assets/justhed.webp" type="image/webp" />
-                <img src="assets/justhed.png" alt="Just the D" loading="lazy" decoding="async" />
-              </picture>
+              <picture><source srcset="assets/opt/justhed-anim.webp" type="image/webp" /><img src="assets/opt/justhed-944.webp" alt="Just the D" width="944" height="472" loading="lazy" decoding="async" fetchpriority="low" /></picture>
             </div>
             <div class="panel__meta">
               <span>04</span>
@@ -356,7 +386,7 @@
             </div>
           </a>
           <a class="panel" href="https://smaisanophotography.com/" target="_blank" rel="noopener" data-hover="view">
-            <div class="panel__media"><img src="assets/sarah.png" alt="Sarah's Lens" loading="lazy" /></div>
+            <div class="panel__media"><picture><source type="image/avif" srcset="assets/opt/sarah-480.avif 480w, assets/opt/sarah-800.avif 800w, assets/opt/sarah-1200.avif 1200w, assets/opt/sarah-1600.avif 1600w, assets/opt/sarah-1890.avif 1890w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/sarah-480.webp 480w, assets/opt/sarah-800.webp 800w, assets/opt/sarah-1200.webp 1200w, assets/opt/sarah-1600.webp 1600w, assets/opt/sarah-1890.webp 1890w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/sarah-1200.webp" alt="Sarah's Lens" width="1890" height="939" loading="lazy" fetchpriority="low" decoding="async" /></picture></div>
             <div class="panel__meta">
               <span>05</span>
               <h3>Sarah's Lens</h3>
@@ -366,7 +396,7 @@
           <a class="panel" href="https://lyricsaucedo-dev.github.io/blessedbeauty/" target="_blank" rel="noopener" data-hover="view">
             <div class="panel__media">
               <span class="panel__badge">WIP</span>
-              <img src="assets/blessedbeauty.png" alt="Blessed Beauty" loading="lazy" />
+              <picture><source type="image/avif" srcset="assets/opt/blessedbeauty-480.avif 480w, assets/opt/blessedbeauty-800.avif 800w, assets/opt/blessedbeauty-1200.avif 1200w, assets/opt/blessedbeauty-1600.avif 1600w, assets/opt/blessedbeauty-1889.avif 1889w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/blessedbeauty-480.webp 480w, assets/opt/blessedbeauty-800.webp 800w, assets/opt/blessedbeauty-1200.webp 1200w, assets/opt/blessedbeauty-1600.webp 1600w, assets/opt/blessedbeauty-1889.webp 1889w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/blessedbeauty-1200.webp" alt="Blessed Beauty" width="1889" height="896" loading="lazy" fetchpriority="low" decoding="async" /></picture>
             </div>
             <div class="panel__meta">
               <span>06</span>
@@ -375,7 +405,7 @@
             </div>
           </a>
           <a class="panel" href="https://www.charmedbybanana.com/" target="_blank" rel="noopener" data-hover="view">
-            <div class="panel__media"><img src="assets/charmed.png" alt="charmedbybanana" loading="lazy" /></div>
+            <div class="panel__media"><picture><source type="image/avif" srcset="assets/opt/charmed-480.avif 480w, assets/opt/charmed-800.avif 800w, assets/opt/charmed-1200.avif 1200w, assets/opt/charmed-1600.avif 1600w, assets/opt/charmed-1891.avif 1891w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/charmed-480.webp 480w, assets/opt/charmed-800.webp 800w, assets/opt/charmed-1200.webp 1200w, assets/opt/charmed-1600.webp 1600w, assets/opt/charmed-1891.webp 1891w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/charmed-1200.webp" alt="charmedbybanana" width="1891" height="942" loading="lazy" fetchpriority="low" decoding="async" /></picture></div>
             <div class="panel__meta">
               <span>07</span>
               <h3>charmedbybanana</h3>
@@ -383,7 +413,7 @@
             </div>
           </a>
           <a class="panel" href="https://conceiving-victory.vercel.app/" target="_blank" rel="noopener" data-hover="view">
-            <div class="panel__media"><img src="assets/conceiving.png" alt="Conceiving Victory" loading="lazy" /></div>
+            <div class="panel__media"><picture><source type="image/avif" srcset="assets/opt/conceiving-480.avif 480w, assets/opt/conceiving-800.avif 800w, assets/opt/conceiving-1200.avif 1200w, assets/opt/conceiving-1600.avif 1600w, assets/opt/conceiving-1909.avif 1909w" sizes="(max-width: 860px) 46vw, 620px" /><source type="image/webp" srcset="assets/opt/conceiving-480.webp 480w, assets/opt/conceiving-800.webp 800w, assets/opt/conceiving-1200.webp 1200w, assets/opt/conceiving-1600.webp 1600w, assets/opt/conceiving-1909.webp 1909w" sizes="(max-width: 860px) 46vw, 620px" /><img src="assets/opt/conceiving-1200.webp" alt="Conceiving Victory" width="1909" height="936" loading="lazy" fetchpriority="low" decoding="async" /></picture></div>
             <div class="panel__meta">
               <span>08</span>
               <h3>Conceiving Victory</h3>
@@ -459,10 +489,7 @@
         </div>
         <div class="cap__visual">
           <div class="cap__frame">
-            <picture>
-              <source srcset="assets/justhed.webp" type="image/webp" />
-              <img src="assets/justhed.png" alt="Just the D storytelling frame" loading="lazy" decoding="async" />
-            </picture>
+            <picture><source srcset="assets/opt/justhed-anim.webp" type="image/webp" /><img src="assets/opt/justhed-944.webp" alt="Just the D storytelling frame" width="944" height="472" loading="lazy" decoding="async" fetchpriority="low" /></picture>
           </div>
         </div>
       </div>
@@ -496,35 +523,35 @@
           <div class="ticker__row ticker__row--film">
             <div class="ticker__track ticker__film" id="tickerFilm">
               <a class="ticker__shot" href="https://jessesparks714.com/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/jessesparks.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/jessesparks-480.webp 480w, assets/opt/jessesparks-800.webp 800w, assets/opt/jessesparks-1200.webp 1200w, assets/opt/jessesparks-1600.webp 1600w, assets/opt/jessesparks-1891.webp 1891w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/jessesparks-1200.webp" alt="" width="1891" height="894" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>Jesse Sparks</em>
               </a>
               <a class="ticker__shot" href="https://orthodoxiconscorona.com/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/orthodoxicons.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/orthodoxicons-480.avif 480w, assets/opt/orthodoxicons-800.avif 800w, assets/opt/orthodoxicons-1200.avif 1200w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/orthodoxicons-480.webp 480w, assets/opt/orthodoxicons-800.webp 800w, assets/opt/orthodoxicons-1200.webp 1200w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/orthodoxicons-1200.webp" alt="" width="1200" height="1200" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>Orthodox Icons</em>
               </a>
               <a class="ticker__shot" href="https://sjrnr.myshopify.com/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/sjrnr.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/sjrnr-480.avif 480w, assets/opt/sjrnr-800.avif 800w, assets/opt/sjrnr-1200.avif 1200w, assets/opt/sjrnr-1600.avif 1600w, assets/opt/sjrnr-1912.avif 1912w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/sjrnr-480.webp 480w, assets/opt/sjrnr-800.webp 800w, assets/opt/sjrnr-1200.webp 1200w, assets/opt/sjrnr-1600.webp 1600w, assets/opt/sjrnr-1912.webp 1912w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/sjrnr-1200.webp" alt="" width="1912" height="902" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>SJRNR</em>
               </a>
               <a class="ticker__shot" href="https://justthed.com/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/justhed.webp" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/justhed-480.avif 480w, assets/opt/justhed-800.avif 800w, assets/opt/justhed-944.avif 944w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/justhed-480.webp 480w, assets/opt/justhed-800.webp 800w, assets/opt/justhed-944.webp 944w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/justhed-944.webp" alt="" width="944" height="472" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>Just the D</em>
               </a>
               <a class="ticker__shot" href="https://smaisanophotography.com/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/sarah.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/sarah-480.avif 480w, assets/opt/sarah-800.avif 800w, assets/opt/sarah-1200.avif 1200w, assets/opt/sarah-1600.avif 1600w, assets/opt/sarah-1890.avif 1890w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/sarah-480.webp 480w, assets/opt/sarah-800.webp 800w, assets/opt/sarah-1200.webp 1200w, assets/opt/sarah-1600.webp 1600w, assets/opt/sarah-1890.webp 1890w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/sarah-1200.webp" alt="" width="1890" height="939" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>Sarah's Lens</em>
               </a>
               <a class="ticker__shot" href="https://lyricsaucedo-dev.github.io/blessedbeauty/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/blessedbeauty.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/blessedbeauty-480.avif 480w, assets/opt/blessedbeauty-800.avif 800w, assets/opt/blessedbeauty-1200.avif 1200w, assets/opt/blessedbeauty-1600.avif 1600w, assets/opt/blessedbeauty-1889.avif 1889w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/blessedbeauty-480.webp 480w, assets/opt/blessedbeauty-800.webp 800w, assets/opt/blessedbeauty-1200.webp 1200w, assets/opt/blessedbeauty-1600.webp 1600w, assets/opt/blessedbeauty-1889.webp 1889w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/blessedbeauty-1200.webp" alt="" width="1889" height="896" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>Blessed Beauty</em>
               </a>
               <a class="ticker__shot" href="https://www.charmedbybanana.com/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/charmed.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/charmed-480.avif 480w, assets/opt/charmed-800.avif 800w, assets/opt/charmed-1200.avif 1200w, assets/opt/charmed-1600.avif 1600w, assets/opt/charmed-1891.avif 1891w" sizes="(max-width: 860px) 86vw, 340px" /><source type="image/webp" srcset="assets/opt/charmed-480.webp 480w, assets/opt/charmed-800.webp 800w, assets/opt/charmed-1200.webp 1200w, assets/opt/charmed-1600.webp 1600w, assets/opt/charmed-1891.webp 1891w" sizes="(max-width: 860px) 86vw, 340px" /><img src="assets/opt/charmed-1200.webp" alt="" width="1891" height="942" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>charmedbybanana</em>
               </a>
               <a class="ticker__shot" href="https://conceiving-victory.vercel.app/" target="_blank" rel="noopener" data-hover="view">
-                <img src="assets/conceiving.png" alt="" loading="lazy" />
+                <picture><source type="image/avif" srcset="assets/opt/conceiving-480.avif 480w, assets/opt/conceiving-800.avif 800w, assets/opt/conceiving-1200.avif 1200w, assets/opt/conceiving-1600.avif 1600w, assets/opt/conceiving-1909.avif 1909w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/conceiving-480.webp 480w, assets/opt/conceiving-800.webp 800w, assets/opt/conceiving-1200.webp 1200w, assets/opt/conceiving-1600.webp 1600w, assets/opt/conceiving-1909.webp 1909w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/conceiving-1200.webp" alt="" width="1909" height="936" loading="lazy" fetchpriority="low" decoding="async" /></picture>
                 <em>Conceiving Victory</em>
               </a>
             </div>
@@ -568,7 +595,7 @@
             <p id="atelierLede">Brand, audience, offers, constraints. We define what “done” is before a single pixel moves.</p>
           </div>
           <article class="boards__shot is-on" data-shot="0">
-            <img src="assets/process/discover.webp" alt="Research desk: printouts, phone, pencils under a cream light." width="1920" height="1080" loading="lazy" decoding="async" />
+            <picture><source type="image/avif" srcset="assets/opt/discover-960.avif 960w, assets/opt/discover-1440.avif 1440w, assets/opt/discover-1920.avif 1920w" sizes="100vw" /><source type="image/webp" srcset="assets/opt/discover-960.webp 960w, assets/opt/discover-1440.webp 1440w, assets/opt/discover-1920.webp 1920w" sizes="100vw" /><img src="assets/opt/discover-1440.webp" alt="Research desk: printouts, phone, pencils under a cream light." width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" /></picture>
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">03 — Process</span>
@@ -579,7 +606,7 @@
           </article>
 
           <article class="boards__shot" data-shot="1">
-            <img src="assets/process/direction.webp" alt="Studio wall: type specimens, color chips, layout grids." width="1920" height="1080" loading="lazy" decoding="async" />
+            <picture><source type="image/avif" srcset="assets/opt/direction-960.avif 960w, assets/opt/direction-1440.avif 1440w, assets/opt/direction-1920.avif 1920w" sizes="100vw" /><source type="image/webp" srcset="assets/opt/direction-960.webp 960w, assets/opt/direction-1440.webp 1440w, assets/opt/direction-1920.webp 1920w" sizes="100vw" /><img src="assets/opt/direction-1440.webp" alt="Studio wall: type specimens, color chips, layout grids." width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" /></picture>
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">Art direction</span>
@@ -590,7 +617,7 @@
           </article>
 
           <article class="boards__shot" data-shot="2">
-            <img src="assets/process/build.webp" alt="Dark studio monitor with a luxury site in progress." width="1920" height="1080" loading="lazy" decoding="async" />
+            <picture><source type="image/avif" srcset="assets/opt/build-960.avif 960w, assets/opt/build-1440.avif 1440w, assets/opt/build-1920.avif 1920w" sizes="100vw" /><source type="image/webp" srcset="assets/opt/build-960.webp 960w, assets/opt/build-1440.webp 1440w, assets/opt/build-1920.webp 1920w" sizes="100vw" /><img src="assets/opt/build-1440.webp" alt="Dark studio monitor with a luxury site in progress." width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" /></picture>
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">Build</span>
@@ -601,7 +628,7 @@
           </article>
 
           <article class="boards__shot" data-shot="3">
-            <img src="assets/process/ship.webp" alt="Night of launch: finished site glowing on a monitor." width="1920" height="1080" loading="lazy" decoding="async" />
+            <picture><source type="image/avif" srcset="assets/opt/ship-960.avif 960w, assets/opt/ship-1440.avif 1440w, assets/opt/ship-1920.avif 1920w" sizes="100vw" /><source type="image/webp" srcset="assets/opt/ship-960.webp 960w, assets/opt/ship-1440.webp 1440w, assets/opt/ship-1920.webp 1920w" sizes="100vw" /><img src="assets/opt/ship-1440.webp" alt="Night of launch: finished site glowing on a monitor." width="1920" height="1080" loading="lazy" decoding="async" fetchpriority="low" /></picture>
             <div class="boards__veil" aria-hidden="true"></div>
             <div class="boards__copy">
               <span class="eyebrow">Launch</span>
@@ -626,22 +653,22 @@
     <section class="contact" id="contact">
       <div class="contact__film" aria-hidden="true">
         <div class="contact__film-track">
-          <img src="assets/jessesparks.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/sjrnr.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/orthodoxicons.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/justhed.webp" alt="" loading="lazy" decoding="async" />
-          <img src="assets/sarah.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/blessedbeauty.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/charmed.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/conceiving.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/jessesparks.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/sjrnr.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/orthodoxicons.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/justhed.webp" alt="" loading="lazy" decoding="async" />
-          <img src="assets/sarah.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/blessedbeauty.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/charmed.png" alt="" loading="lazy" decoding="async" />
-          <img src="assets/conceiving.png" alt="" loading="lazy" decoding="async" />
+          <picture><source type="image/avif" srcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/jessesparks-480.webp 480w, assets/opt/jessesparks-800.webp 800w, assets/opt/jessesparks-1200.webp 1200w, assets/opt/jessesparks-1600.webp 1600w, assets/opt/jessesparks-1891.webp 1891w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/jessesparks-1200.webp" alt="" width="1891" height="894" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/sjrnr-480.avif 480w, assets/opt/sjrnr-800.avif 800w, assets/opt/sjrnr-1200.avif 1200w, assets/opt/sjrnr-1600.avif 1600w, assets/opt/sjrnr-1912.avif 1912w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/sjrnr-480.webp 480w, assets/opt/sjrnr-800.webp 800w, assets/opt/sjrnr-1200.webp 1200w, assets/opt/sjrnr-1600.webp 1600w, assets/opt/sjrnr-1912.webp 1912w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/sjrnr-1200.webp" alt="" width="1912" height="902" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/orthodoxicons-480.avif 480w, assets/opt/orthodoxicons-800.avif 800w, assets/opt/orthodoxicons-1200.avif 1200w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/orthodoxicons-480.webp 480w, assets/opt/orthodoxicons-800.webp 800w, assets/opt/orthodoxicons-1200.webp 1200w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/orthodoxicons-1200.webp" alt="" width="1200" height="1200" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/justhed-480.avif 480w, assets/opt/justhed-800.avif 800w, assets/opt/justhed-944.avif 944w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/justhed-480.webp 480w, assets/opt/justhed-800.webp 800w, assets/opt/justhed-944.webp 944w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/justhed-944.webp" alt="" width="944" height="472" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/sarah-480.avif 480w, assets/opt/sarah-800.avif 800w, assets/opt/sarah-1200.avif 1200w, assets/opt/sarah-1600.avif 1600w, assets/opt/sarah-1890.avif 1890w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/sarah-480.webp 480w, assets/opt/sarah-800.webp 800w, assets/opt/sarah-1200.webp 1200w, assets/opt/sarah-1600.webp 1600w, assets/opt/sarah-1890.webp 1890w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/sarah-1200.webp" alt="" width="1890" height="939" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/blessedbeauty-480.avif 480w, assets/opt/blessedbeauty-800.avif 800w, assets/opt/blessedbeauty-1200.avif 1200w, assets/opt/blessedbeauty-1600.avif 1600w, assets/opt/blessedbeauty-1889.avif 1889w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/blessedbeauty-480.webp 480w, assets/opt/blessedbeauty-800.webp 800w, assets/opt/blessedbeauty-1200.webp 1200w, assets/opt/blessedbeauty-1600.webp 1600w, assets/opt/blessedbeauty-1889.webp 1889w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/blessedbeauty-1200.webp" alt="" width="1889" height="896" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/charmed-480.avif 480w, assets/opt/charmed-800.avif 800w, assets/opt/charmed-1200.avif 1200w, assets/opt/charmed-1600.avif 1600w, assets/opt/charmed-1891.avif 1891w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/charmed-480.webp 480w, assets/opt/charmed-800.webp 800w, assets/opt/charmed-1200.webp 1200w, assets/opt/charmed-1600.webp 1600w, assets/opt/charmed-1891.webp 1891w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/charmed-1200.webp" alt="" width="1891" height="942" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/conceiving-480.avif 480w, assets/opt/conceiving-800.avif 800w, assets/opt/conceiving-1200.avif 1200w, assets/opt/conceiving-1600.avif 1600w, assets/opt/conceiving-1909.avif 1909w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/conceiving-480.webp 480w, assets/opt/conceiving-800.webp 800w, assets/opt/conceiving-1200.webp 1200w, assets/opt/conceiving-1600.webp 1600w, assets/opt/conceiving-1909.webp 1909w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/conceiving-1200.webp" alt="" width="1909" height="936" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/jessesparks-480.webp 480w, assets/opt/jessesparks-800.webp 800w, assets/opt/jessesparks-1200.webp 1200w, assets/opt/jessesparks-1600.webp 1600w, assets/opt/jessesparks-1891.webp 1891w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/jessesparks-1200.webp" alt="" width="1891" height="894" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/sjrnr-480.avif 480w, assets/opt/sjrnr-800.avif 800w, assets/opt/sjrnr-1200.avif 1200w, assets/opt/sjrnr-1600.avif 1600w, assets/opt/sjrnr-1912.avif 1912w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/sjrnr-480.webp 480w, assets/opt/sjrnr-800.webp 800w, assets/opt/sjrnr-1200.webp 1200w, assets/opt/sjrnr-1600.webp 1600w, assets/opt/sjrnr-1912.webp 1912w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/sjrnr-1200.webp" alt="" width="1912" height="902" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/orthodoxicons-480.avif 480w, assets/opt/orthodoxicons-800.avif 800w, assets/opt/orthodoxicons-1200.avif 1200w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/orthodoxicons-480.webp 480w, assets/opt/orthodoxicons-800.webp 800w, assets/opt/orthodoxicons-1200.webp 1200w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/orthodoxicons-1200.webp" alt="" width="1200" height="1200" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/justhed-480.avif 480w, assets/opt/justhed-800.avif 800w, assets/opt/justhed-944.avif 944w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/justhed-480.webp 480w, assets/opt/justhed-800.webp 800w, assets/opt/justhed-944.webp 944w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/justhed-944.webp" alt="" width="944" height="472" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/sarah-480.avif 480w, assets/opt/sarah-800.avif 800w, assets/opt/sarah-1200.avif 1200w, assets/opt/sarah-1600.avif 1600w, assets/opt/sarah-1890.avif 1890w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/sarah-480.webp 480w, assets/opt/sarah-800.webp 800w, assets/opt/sarah-1200.webp 1200w, assets/opt/sarah-1600.webp 1600w, assets/opt/sarah-1890.webp 1890w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/sarah-1200.webp" alt="" width="1890" height="939" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/blessedbeauty-480.avif 480w, assets/opt/blessedbeauty-800.avif 800w, assets/opt/blessedbeauty-1200.avif 1200w, assets/opt/blessedbeauty-1600.avif 1600w, assets/opt/blessedbeauty-1889.avif 1889w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/blessedbeauty-480.webp 480w, assets/opt/blessedbeauty-800.webp 800w, assets/opt/blessedbeauty-1200.webp 1200w, assets/opt/blessedbeauty-1600.webp 1600w, assets/opt/blessedbeauty-1889.webp 1889w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/blessedbeauty-1200.webp" alt="" width="1889" height="896" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/charmed-480.avif 480w, assets/opt/charmed-800.avif 800w, assets/opt/charmed-1200.avif 1200w, assets/opt/charmed-1600.avif 1600w, assets/opt/charmed-1891.avif 1891w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/charmed-480.webp 480w, assets/opt/charmed-800.webp 800w, assets/opt/charmed-1200.webp 1200w, assets/opt/charmed-1600.webp 1600w, assets/opt/charmed-1891.webp 1891w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/charmed-1200.webp" alt="" width="1891" height="942" loading="lazy" fetchpriority="low" decoding="async" /></picture>
+          <picture><source type="image/avif" srcset="assets/opt/conceiving-480.avif 480w, assets/opt/conceiving-800.avif 800w, assets/opt/conceiving-1200.avif 1200w, assets/opt/conceiving-1600.avif 1600w, assets/opt/conceiving-1909.avif 1909w" sizes="(max-width: 860px) 42vw, 280px" /><source type="image/webp" srcset="assets/opt/conceiving-480.webp 480w, assets/opt/conceiving-800.webp 800w, assets/opt/conceiving-1200.webp 1200w, assets/opt/conceiving-1600.webp 1600w, assets/opt/conceiving-1909.webp 1909w" sizes="(max-width: 860px) 42vw, 280px" /><img src="assets/opt/conceiving-1200.webp" alt="" width="1909" height="936" loading="lazy" fetchpriority="low" decoding="async" /></picture>
         </div>
       </div>
       <div class="contact__veil" aria-hidden="true"></div>
@@ -663,7 +690,7 @@
             Contact me
           </button>
           <div class="contact__email-row">
-            <button type="button" class="contact__mail" id="copyEmail" aria-label="Copy email address" title="Copy email">
+            <button type="button" class="contact__mail" id="copyEmail" aria-label="Copy lyricsaucedo.dev@gmail.com" title="Copy email">
               <span>lyricsaucedo.dev@gmail.com</span>
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
                 <rect x="9" y="9" width="11" height="11" rx="2"></rect>
@@ -684,7 +711,7 @@
 
   <footer class="foot">
     <a href="#intro" class="foot__brand" data-hover="link">
-      <img src="assets/logo.png" alt="" width="36" height="24" />
+      <picture><source type="image/avif" srcset="assets/opt/logo-64.avif 64w, assets/opt/logo-128.avif 128w" sizes="36px" /><source type="image/webp" srcset="assets/opt/logo-64.webp 64w, assets/opt/logo-128.webp 128w" sizes="36px" /><img src="assets/opt/logo-128.webp" alt="" width="36" height="20" decoding="async" /></picture>
       Lyricsaucedo.dev
     </a>
     <p>© <span id="year"></span> Lyric Saucedo</p>
@@ -702,22 +729,29 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
-  <!-- Site JS always loads — do not gate it behind Three (CSP/previews can block eval-ish CDN paths) -->
-  <script defer src="script.js?v=contact2"></script>
-  <!-- Three as a pure ES module (no UMD eval). Pour / hero listen for three-ready. -->
+  <!-- Three stays off the first paint. Mobile and reduced-motion never download it. -->
   <script type="module">
-    try {
-      const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
-      window.THREE = THREE;
-      window.THREE_ADDONS = {};
-      document.documentElement.classList.add("has-three");
-    } catch (err) {
-      console.warn("[pour] Three.js failed to load — cascade/grid fallback only.", err);
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const desktop = () => innerWidth > 860;
+    const ready = () => window.dispatchEvent(new Event("three-ready"));
+    const loadThree = async () => {
+      try {
+        const THREE = await import("https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js");
+        window.THREE = THREE;
+        window.THREE_ADDONS = {};
+        document.documentElement.classList.add("has-three");
+      } catch (err) {
+        console.warn("[pour] Three.js failed to load — cascade/grid fallback only.", err);
+      }
+      ready();
+    };
+    if (reduced || !desktop()) ready();
+    else {
+      const kick = () =>
+        (window.requestIdleCallback || ((fn) => setTimeout(fn, 1)))(loadThree, { timeout: 1200 });
+      if (document.readyState === "complete") kick();
+      else addEventListener("load", kick, { once: true });
     }
-    window.dispatchEvent(new Event("three-ready"));
   </script>
 </body>
 </html>
