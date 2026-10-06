@@ -131,8 +131,19 @@
 
   const boot = () => {
     bootCore();
+    initAnimMedia();
     const later = window.requestIdleCallback || ((fn) => setTimeout(fn, 1));
-    later(() => bootMotion(), { timeout: 700 });
+    later(() => bootMotion(), { timeout: 1200 });
+  };
+
+  function initAnimMedia() {
+    if (reduced) return;
+    document.querySelectorAll("source[data-anim]").forEach((source) => {
+      const pic = source.closest("picture");
+      onceNear(pic || source, "30% 0px", () => {
+        if (!source.getAttribute("srcset")) source.srcset = source.dataset.anim;
+      });
+    });
   };
 
   function initHireSticky() {

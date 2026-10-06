@@ -7,10 +7,15 @@
   <meta name="description" content="Award-caliber freelance web design and development for ambitious brands. Shopify, brand sites, and immersive digital experiences." />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=fast1" />
+  <link
+    rel="preload"
+    as="image"
+    href="assets/opt/logo-256.avif"
+    imagesrcset="assets/opt/logo-128.avif 128w, assets/opt/logo-256.avif 256w, assets/opt/logo-512.avif 512w"
+    imagesizes="280px"
+    type="image/avif"
+    fetchpriority="high"
+  />
   <link
     rel="preload"
     as="image"
@@ -18,12 +23,8 @@
     imagesrcset="assets/opt/jessesparks-480.avif 480w, assets/opt/jessesparks-800.avif 800w, assets/opt/jessesparks-1200.avif 1200w, assets/opt/jessesparks-1600.avif 1600w, assets/opt/jessesparks-1891.avif 1891w"
     imagesizes="100vw"
     type="image/avif"
-    fetchpriority="high"
   />
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
-  <script defer src="script.js?v=fast1"></script>
+  <link rel="stylesheet" href="styles.css?v=fast2" />
   <script type="importmap">
   {
     "imports": {
@@ -222,7 +223,7 @@
           <picture>
             <source type="image/avif" srcset="assets/opt/logo-128.avif 128w, assets/opt/logo-256.avif 256w, assets/opt/logo-512.avif 512w" sizes="280px" />
             <source type="image/webp" srcset="assets/opt/logo-128.webp 128w, assets/opt/logo-256.webp 256w, assets/opt/logo-512.webp 512w" sizes="280px" />
-            <img src="assets/opt/logo-256.webp" alt="" class="intro__mark" width="1278" height="691" decoding="async" />
+            <img src="assets/opt/logo-256.webp" alt="" class="intro__mark" width="1278" height="691" fetchpriority="high" />
           </picture>
           <p class="intro__wordmark">Lyricsaucedo.dev</p>
           <div class="intro__offer">
@@ -377,7 +378,7 @@
           </a>
           <a class="panel" href="https://justthed.com/" target="_blank" rel="noopener" data-hover="view">
             <div class="panel__media">
-              <picture><source srcset="assets/opt/justhed-anim.webp" type="image/webp" /><img src="assets/opt/justhed-944.webp" alt="Just the D" width="944" height="472" loading="lazy" decoding="async" fetchpriority="low" /></picture>
+              <picture><source data-anim="assets/opt/justhed-anim.webp" type="image/webp" /><img src="assets/opt/justhed-944.webp" alt="Just the D" width="944" height="472" loading="lazy" decoding="async" fetchpriority="low" /></picture>
             </div>
             <div class="panel__meta">
               <span>04</span>
@@ -489,7 +490,7 @@
         </div>
         <div class="cap__visual">
           <div class="cap__frame">
-            <picture><source srcset="assets/opt/justhed-anim.webp" type="image/webp" /><img src="assets/opt/justhed-944.webp" alt="Just the D storytelling frame" width="944" height="472" loading="lazy" decoding="async" fetchpriority="low" /></picture>
+            <picture><source data-anim="assets/opt/justhed-anim.webp" type="image/webp" /><img src="assets/opt/justhed-944.webp" alt="Just the D storytelling frame" width="944" height="472" loading="lazy" decoding="async" fetchpriority="low" /></picture>
           </div>
         </div>
       </div>
@@ -729,6 +730,42 @@
     </div>
   </footer>
 
+  <!-- Motion libraries start after the first frame so they don't delay LCP. Lenis is desktop-only. -->
+  <script>
+    (function () {
+      var started = false;
+      function add(src) {
+        return new Promise(function (resolve) {
+          var s = document.createElement("script");
+          s.src = src;
+          s.async = false;
+          s.fetchPriority = "low";
+          s.onload = function () { resolve(); };
+          s.onerror = function () { resolve(); };
+          document.body.appendChild(s);
+        });
+      }
+      function start() {
+        if (started) return;
+        started = true;
+        var mobile = matchMedia("(max-width: 860px)").matches;
+        add("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js").then(function () {
+          var rest = [add("https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js")];
+          if (!mobile) rest.push(add("https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"));
+          return Promise.all(rest);
+        }).then(function () {
+          return add("script.js?v=fast2");
+        });
+      }
+      function kick() {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(start);
+        });
+      }
+      if (document.readyState === "complete") kick();
+      else window.addEventListener("load", kick, { once: true });
+    })();
+  </script>
   <!-- Three stays off the first paint. Mobile and reduced-motion never download it. -->
   <script type="module">
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
